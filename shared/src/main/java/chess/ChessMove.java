@@ -16,7 +16,9 @@ public class ChessMove {
      * @return ChessPosition of starting location
      */
     public ChessPosition getStartPosition() {
+
         throw new RuntimeException("Not implemented");
+
     }
 
     /**
