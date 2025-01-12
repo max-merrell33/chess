@@ -10,7 +10,7 @@ public class PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) { return null; }
 
     /**
-     * Gets the valid moves a piece can make
+     * Gets the valid moves a piece can make (used for all except pawn)
      *
      * @param board a ChessBoard
      * @param myPosition the position of the piece being moved

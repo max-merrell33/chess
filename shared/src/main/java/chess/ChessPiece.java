@@ -34,6 +34,14 @@ public class ChessPiece {
         return Objects.hash(pieceColor, type);
     }
 
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
+    }
+
     /**
      * The various different chess piece options
      */
@@ -92,6 +100,8 @@ public class ChessPiece {
                 moves = rookMovesCalculator.pieceMoves(board, myPosition);
                 break;
             case PAWN:
+                PawnMovesCalculator pawnMovesCalculator = new PawnMovesCalculator();
+                moves = pawnMovesCalculator.pieceMoves(board, myPosition);
                 break;
             default:
         }
