@@ -33,32 +33,29 @@ public class PawnMovesCalculator extends PieceMovesCalculator {
         // if the square directly ahead is empty, the pawn can move forward
         ChessPosition oneSquareForward = new ChessPosition(newRow, col);
         if (isSpaceEmpty(board, oneSquareForward)) {
-            addPawnMoves(myPosition, oneSquareForward);
-        }
-
-        // if the pawn has not moved, check two squares ahead
-        if (hasNotMoved && isSpaceEmpty(board, oneSquareForward)) {
-            ChessPosition twoSquaresForward = new ChessPosition(newRow+direction, col);
-            if (isSpaceEmpty(board, twoSquaresForward)) {
-                addPawnMoves(myPosition, twoSquaresForward);
+            addPawnMove(myPosition, oneSquareForward);
+            // check two squares ahead if the pawn has not moved all game
+            if (hasNotMoved) {
+                ChessPosition twoSquaresForward = new ChessPosition(newRow+direction, col);
+                if (isSpaceEmpty(board, twoSquaresForward)) {
+                    addPawnMove(myPosition, twoSquaresForward);
+                }
             }
         }
 
         // if the two squares diagonal and forward contain an enemy, they are valid moves
-        ChessPosition diagonalSquare = new ChessPosition(newRow, col+1);
-        if (isInBounds(diagonalSquare) && isSpaceEnemy(board, diagonalSquare, pawnColor)) {
-            addPawnMoves(myPosition, diagonalSquare);
-        }
-
-        diagonalSquare = new ChessPosition(newRow, col-1);
-        if (isInBounds(diagonalSquare) && isSpaceEnemy(board, diagonalSquare, pawnColor)) {
-            addPawnMoves(myPosition, diagonalSquare);
+        int[] diagonals = {-1, 1};
+        for (int changeCol: diagonals) {
+            ChessPosition diagonalSquare = new ChessPosition(newRow, col + changeCol);
+            if (isInBounds(diagonalSquare) && isSpaceEnemy(board, diagonalSquare, pawnColor)) {
+                addPawnMove(myPosition, diagonalSquare);
+            }
         }
 
         return moves;
     }
 
-    public void addPawnMoves(ChessPosition start, ChessPosition end) {
+    public void addPawnMove(ChessPosition start, ChessPosition end) {
         if (end.getRow() == 1 || end.getRow() == 8) {
             for (ChessPiece.PieceType piece : promotionPieces) {
                 moves.add(new ChessMove(start, end, piece));
