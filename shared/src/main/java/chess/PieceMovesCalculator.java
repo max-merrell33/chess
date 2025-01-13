@@ -30,8 +30,8 @@ public class PieceMovesCalculator {
             while (isValidMove(board, new ChessPosition(row, col), color)) {
                 moves.add(new ChessMove(myPosition, new ChessPosition(row, col), null));
 
-                if (isSpaceEnemy(board, new ChessPosition(row, col), color)) break;
-                if (hasOneMove) break;
+                if (isSpaceEnemy(board, new ChessPosition(row, col), color)) { break; }
+                if (hasOneMove) { break; }
 
                 row += direction[0];
                 col += direction[1];
@@ -88,7 +88,7 @@ public class PieceMovesCalculator {
      * @return true is the space contains an enemy
      */
     public boolean isSpaceEnemy(ChessBoard board, ChessPosition position, ChessGame.TeamColor color) {
-        if (board.getPiece(position) == null) return false; //checks if the space is empty
+        if (board.getPiece(position) == null) { return false; } //checks if the space is empty
         return board.getPiece(position).getTeamColor() != color; // checks if the space contains a piece of the opposite color
     }
 
