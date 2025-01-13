@@ -13,6 +13,18 @@ public class ChessBoard {
 
     private ChessPiece[][] squares = new ChessPiece[8][8];
 
+    private final ChessPiece.PieceType[] baseRowPieces = {
+            null, // positions are indexed 1-8 so this null value takes up the 0 index
+            ChessPiece.PieceType.ROOK,
+            ChessPiece.PieceType.KNIGHT,
+            ChessPiece.PieceType.BISHOP,
+            ChessPiece.PieceType.QUEEN,
+            ChessPiece.PieceType.KING,
+            ChessPiece.PieceType.BISHOP,
+            ChessPiece.PieceType.KNIGHT,
+            ChessPiece.PieceType.ROOK
+    };
+
     public ChessBoard() {
         
     }
@@ -45,9 +57,36 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+        int[] baseRows = {1,8};
+        int[] pawnRows = {2,7};
+        ChessGame.TeamColor[] teamColors = {ChessGame.TeamColor.WHITE, ChessGame.TeamColor.BLACK};
 
-        throw new RuntimeException("Not implemented");
+        for (int i = 0; i < 2; i++) {
+            addRowOfPieces(baseRows[i], teamColors[i], false);
+            addRowOfPieces(pawnRows[i], teamColors[i], true);
+        }
+    }
 
+    /**
+     * Adds a row of pieces, called in resetBoard
+     *
+     * @param row the number of the row where the pieces are being placed (1,2,7,8)
+     * @param color the color of the pieces in the row
+     * @param isPawnRow true if the row is a row of pawns, false if it is a base row
+     */
+    public void addRowOfPieces(int row, ChessGame.TeamColor color, boolean isPawnRow) {
+        ChessPiece.PieceType[] pieces = new ChessPiece.PieceType[9];
+        if (isPawnRow) {
+            Arrays.fill(pieces, ChessPiece.PieceType.PAWN);
+        } else {
+            pieces = baseRowPieces;
+        }
+
+        for (int i = 1; i <= 8; i++) {
+            ChessPosition position = new ChessPosition(row, i);
+            ChessPiece piece = new ChessPiece(color, pieces[i]);
+            addPiece(position, piece);
+        }
     }
 
 
@@ -63,5 +102,10 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(squares);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" + Arrays.toString(squares) + '}';
     }
 }
