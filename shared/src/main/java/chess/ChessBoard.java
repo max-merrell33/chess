@@ -142,6 +142,17 @@ public class ChessBoard {
 
         addPiece(move.getStartPosition(), null);
         addPiece(move.getEndPosition(), movePiece);
+        System.out.println(move.isCastling());
+        if (move.isCastling()) {
+            int row = move.getStartPosition().getRow();
+            int rookStartColumn = move.getEndPosition().getColumn() == 3 ? 1 : 8;
+            int rookEndColumn = move.getEndPosition().getColumn() == 3 ? 4 : 6;
+
+            ChessPiece rook = new ChessPiece(movePiece.getTeamColor(), ChessPiece.PieceType.ROOK);
+
+            addPiece(new ChessPosition(row, rookStartColumn), null);
+            addPiece(new ChessPosition(row, rookEndColumn), rook);
+        }
     }
 
 

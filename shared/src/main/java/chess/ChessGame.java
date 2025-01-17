@@ -80,6 +80,12 @@ public class ChessGame {
             board.addPiece(move.getEndPosition(), endPiece);
         }
         pieceMoves.removeAll(invalidMoves);
+
+        Collection<ChessMove> castlingMoves = new SpecialMoves().getCastlingMoves(board, startPosition);
+
+        System.out.println("Castling moves: " + castlingMoves);
+
+        if (castlingMoves != null) { pieceMoves.addAll(castlingMoves); }
         return pieceMoves;
     }
 
@@ -90,6 +96,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        ChessPiece piece = board.getPiece(move.getStartPosition());
 
         //Check that the move is valid
         Collection<ChessMove> validPieceMoves = validMoves(move.getStartPosition());
@@ -98,12 +105,21 @@ public class ChessGame {
 
 
         //check that it is the teams turn of the piece making the move
-        TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
+        TeamColor pieceColor = piece.getTeamColor();
         if ( getTeamTurn() != pieceColor ) { throw new InvalidMoveException(); }
+
+        //set the hasMoved flag on the piece
+        piece.setHasMoved();
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && move.getNumColsMoved() > 1) {
+            move.setCastling(true);
+        }
 
         //make the move and change whose turn it is
         board.makeMove(move);
         setTeamTurn(pieceColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
+
+        System.out.println(board);
     }
 
     /**

@@ -17,6 +17,7 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final ChessPiece.PieceType type;
+    private boolean hasMoved = false;
 
     private static final Map<PieceType, String> TYPE_TO_CHAR_MAP = Map.of(
             ChessPiece.PieceType.PAWN, "p",
@@ -31,28 +32,17 @@ public class ChessPiece {
         this.type = type;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
-    }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(pieceColor, type);
-    }
+    /**
+     * @return True if the piece has moved, false if not
+     */
+    public boolean hasMoved() { return hasMoved; }
 
-    @Override
-    public String toString() {
-        if (pieceColor == ChessGame.TeamColor.WHITE) {
-            return TYPE_TO_CHAR_MAP.get(type).toUpperCase();
-        } else {
-            return TYPE_TO_CHAR_MAP.get(type).toLowerCase();
-        }
-    }
+    /**
+     * Sets the hasMoved flag to true
+     */
+    public void setHasMoved() { hasMoved = true; }
+
 
     /**
      * The various different chess piece options
@@ -119,4 +109,28 @@ public class ChessPiece {
         }
         return moves;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
+    @Override
+    public String toString() {
+        if (pieceColor == ChessGame.TeamColor.WHITE) {
+            return TYPE_TO_CHAR_MAP.get(type).toUpperCase();
+        } else {
+            return TYPE_TO_CHAR_MAP.get(type).toLowerCase();
+        }
+    }
+
 }

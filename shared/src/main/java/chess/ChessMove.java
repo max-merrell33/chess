@@ -13,14 +13,16 @@ public class ChessMove {
     private final ChessPosition startPosition;
     private final ChessPosition endPosition;
     private final ChessPiece.PieceType promotionPiece;
+    private boolean isCastling = false;
+    private final int numColsMoved;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
-
         this.startPosition = startPosition;
         this.endPosition = endPosition;
         this.promotionPiece = promotionPiece;
 
+        numColsMoved = Math.abs(startPosition.getColumn() - endPosition.getColumn());
     }
 
     /**
@@ -72,5 +74,17 @@ public class ChessMove {
                 ", endPos=" + endPosition +
                 ", promotionPiece=" + promotionPiece +
                 '}';
+    }
+
+    public boolean isCastling() {
+        return isCastling;
+    }
+
+    public void setCastling(boolean isCastling) {
+        this.isCastling = isCastling;
+    }
+
+    public int getNumColsMoved() {
+        return numColsMoved;
     }
 }
