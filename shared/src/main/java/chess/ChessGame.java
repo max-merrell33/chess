@@ -62,6 +62,8 @@ public class ChessGame {
 
         Collection<ChessMove> pieceMoves = board.getPiece(startPosition).pieceMoves(board, startPosition);
         Collection<ChessMove> invalidMoves = new ArrayList<>();
+
+        //loop through all the possible moves that piece can do and remove the invalid ones
         for (ChessMove move : pieceMoves) {
             //save the original pieces so the move can be undone
             ChessPiece startPiece = board.getPiece(move.getStartPosition());
@@ -88,7 +90,20 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+
+        //Check that the move is valid
+        Collection<ChessMove> validPieceMoves = validMoves(move.getStartPosition());
+        if ( validPieceMoves == null ) { throw new InvalidMoveException(); }
+        if ( !(validPieceMoves.contains(move)) ) { throw new InvalidMoveException(); }
+
+
+        //check that it is the teams turn of the piece making the move
+        TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
+        if ( !(getTeamTurn() == pieceColor) ) { throw new InvalidMoveException(); }
+
+        //make the move and change whose turn it is
         board.makeMove(move);
+        setTeamTurn(pieceColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     /**

@@ -28,14 +28,6 @@ public class ChessBoard {
         
     }
 
-    public ChessBoard(ChessBoard board) {
-        this.squares = board.squares;
-//        for (int i = 0; i < 8; i++) {
-//            for (int j = 0; j < 8; j++) {
-//                this.squares[j][i] = board.getPiece(new ChessPosition(j+1, i+1));
-//            }
-//        }
-    }
 
     /**
      * Adds a chess piece to the chessboard
@@ -124,6 +116,11 @@ public class ChessBoard {
 
     public void makeMove(ChessMove move) {
         ChessPiece movePiece = getPiece(move.getStartPosition());
+
+        if ( !(move.getPromotionPiece() == null)) {
+            movePiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
+        }
+
         addPiece(move.getStartPosition(), null);
         addPiece(move.getEndPosition(), movePiece);
     }
