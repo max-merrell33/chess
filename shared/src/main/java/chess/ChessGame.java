@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -53,7 +54,30 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
+        if (board.getPiece(startPosition) == null) {
+            return null;
+        }
+
+        TeamColor pieceColor = board.getPiece(startPosition).getTeamColor();
+
         Collection<ChessMove> pieceMoves = board.getPiece(startPosition).pieceMoves(board, startPosition);
+        Collection<ChessMove> invalidMoves = new ArrayList<>();
+        for (ChessMove move : pieceMoves) {
+            //save the original pieces so the move can be undone
+            ChessPiece startPiece = board.getPiece(move.getStartPosition());
+            ChessPiece endPiece = board.getPiece(move.getEndPosition());
+
+            board.makeMove(move);
+
+            if (isInCheck(pieceColor)) {
+                invalidMoves.add(move);
+            }
+
+            //undo the move
+            board.addPiece(move.getStartPosition(), startPiece);
+            board.addPiece(move.getEndPosition(), endPiece);
+        }
+        pieceMoves.removeAll(invalidMoves);
         return pieceMoves;
     }
 
@@ -64,9 +88,7 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        ChessPiece movePiece = board.getPiece(move.getStartPosition());
-        board.addPiece(move.getStartPosition(), null);
-        board.addPiece(move.getEndPosition(), movePiece);
+        board.makeMove(move);
     }
 
     /**
