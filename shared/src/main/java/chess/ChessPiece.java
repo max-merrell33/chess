@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -14,6 +15,14 @@ public class ChessPiece {
 
     private final ChessGame.TeamColor pieceColor;
     private final ChessPiece.PieceType type;
+
+    private static final Map<PieceType, String> TYPE_TO_CHAR_MAP = Map.of(
+            ChessPiece.PieceType.PAWN, "p",
+            ChessPiece.PieceType.KNIGHT, "n",
+            ChessPiece.PieceType.ROOK, "r",
+            ChessPiece.PieceType.QUEEN, "q",
+            ChessPiece.PieceType.KING, "k",
+            ChessPiece.PieceType.BISHOP, "b");
     
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
@@ -36,10 +45,11 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        return "ChessPiece{" +
-                "pieceColor=" + pieceColor +
-                ", type=" + type +
-                '}';
+        if (pieceColor == ChessGame.TeamColor.WHITE) {
+            return TYPE_TO_CHAR_MAP.get(type).toUpperCase();
+        } else {
+            return TYPE_TO_CHAR_MAP.get(type).toLowerCase();
+        }
     }
 
     /**

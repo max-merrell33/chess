@@ -1,7 +1,6 @@
 package chess;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A chessboard that can hold and rearrange chess pieces.
@@ -89,6 +88,31 @@ public class ChessBoard {
         }
     }
 
+    public ChessPosition getKingPosition(ChessGame.TeamColor color) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (squares[i][j] == null) {continue;}
+                if (squares[i][j].getPieceType() == ChessPiece.PieceType.KING && squares[i][j].getTeamColor() == color) {
+                    return new ChessPosition(j+1, i+1);
+                }
+            }
+        }
+        return null;
+    }
+
+    public Collection<ChessPosition> getTeamPositions(ChessGame.TeamColor color) {
+        Collection<ChessPosition> teamPositions = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (squares[i][j] == null) {continue;}
+                if (squares[i][j].getTeamColor() == color) {
+                    teamPositions.add(new ChessPosition(j+1, i+1));
+                }
+            }
+        }
+        return teamPositions;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -106,6 +130,14 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "ChessBoard{" + Arrays.toString(squares) + '}';
+        StringBuilder sb = new StringBuilder();
+        for (int i = 7; i >= 0; i--) {
+            for (int j = 0; j < 8; j++) {
+                sb.append(squares[j][i] == null ? "_" : squares[j][i].toString());
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
     }
+
 }
