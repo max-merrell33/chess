@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] squares = new ChessPiece[8][8];
+    private final ChessPiece[][] squares = new ChessPiece[8][8];
 
     private final ChessPiece.PieceType[] baseRowPieces = {
             null, // positions are indexed 1-8 so this null value takes up the 0 index
@@ -89,6 +89,12 @@ public class ChessBoard {
         }
     }
 
+    /**
+     * Gets the position of a team's king
+     *
+     * @param color the team color of the desired king
+     * @return The position of a team's king
+     */
     public ChessPosition getKingPosition(ChessGame.TeamColor color) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -101,6 +107,13 @@ public class ChessBoard {
         return null;
     }
 
+
+    /**
+     * Gets the positions of every piece for a given team
+     *
+     * @param color the team of the desired pieces
+     * @return the positions of every piece for a given team
+     */
     public Collection<ChessPosition> getTeamPositions(ChessGame.TeamColor color) {
         Collection<ChessPosition> teamPositions = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
@@ -114,6 +127,12 @@ public class ChessBoard {
         return teamPositions;
     }
 
+
+    /**
+     * Makes a move on the board. Does not check if the move is valid
+     *
+     * @param move the ChessMove to be made
+     */
     public void makeMove(ChessMove move) {
         ChessPiece movePiece = getPiece(move.getStartPosition());
 
