@@ -25,7 +25,7 @@ public class ChessBoard {
     };
 
     public ChessBoard() {
-        
+
     }
 
 
@@ -117,7 +117,7 @@ public class ChessBoard {
     public void makeMove(ChessMove move) {
         ChessPiece movePiece = getPiece(move.getStartPosition());
 
-        if ( !(move.getPromotionPiece() == null)) {
+        if ( move.getPromotionPiece() != null ) {
             movePiece = new ChessPiece(movePiece.getTeamColor(), move.getPromotionPiece());
         }
 
