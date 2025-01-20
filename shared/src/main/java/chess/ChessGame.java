@@ -67,6 +67,12 @@ public class ChessGame {
         return pieceMoves;
     }
 
+    /**
+     * Determines if a given move would put the moving team into check
+     *
+     * @param move the move being made
+     * @return true is the move would put the moving team in check, false if not
+     */
     public boolean moveCreatesCheck(ChessMove move) {
         ChessGame.TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
         boolean createsCheck = false;

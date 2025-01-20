@@ -5,6 +5,13 @@ import java.util.Collection;
 
 public class SpecialMoves {
 
+    /**
+     * Gets the valid castling moves for a given position
+     *
+     * @param game the ChessGame
+     * @param position the position being checked for valid castling moves
+     * @return Set of valid castling moves for the requested piece
+     */
     public Collection<ChessMove> getCastlingMoves(ChessGame game, ChessPosition position) {
         ChessPiece piece = game.getBoard().getPiece(position);
         ChessPiece.PieceType type = piece.getPieceType();
@@ -35,6 +42,14 @@ public class SpecialMoves {
         return moves;
     }
 
+    /**
+     * Determines if a king can castle
+     *
+     * @param game the ChessGame
+     * @param row the row where the king is found
+     * @param isQueenSide true if queen side castling is being checked, false if king side
+     * @return Whether the king can castle to the given side
+     */
     public boolean isSideValid(ChessGame game, int row, boolean isQueenSide) {
         ChessBoard board = game.getBoard();
         int[] verifyEmptyColNums; // The columns between the rook and king, need to be empty
