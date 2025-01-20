@@ -142,7 +142,7 @@ public class ChessBoard {
 
         addPiece(move.getStartPosition(), null);
         addPiece(move.getEndPosition(), movePiece);
-        System.out.println(move.isCastling());
+
         if (move.isCastling()) {
             int row = move.getStartPosition().getRow();
             int rookStartColumn = move.getEndPosition().getColumn() == 3 ? 1 : 8;

@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -58,35 +57,35 @@ public class ChessGame {
             return null;
         }
 
-        TeamColor pieceColor = board.getPiece(startPosition).getTeamColor();
-
         Collection<ChessMove> pieceMoves = board.getPiece(startPosition).pieceMoves(board, startPosition);
-        Collection<ChessMove> invalidMoves = new ArrayList<>();
 
-        //loop through all the possible moves that piece can do and remove the invalid ones
-        for (ChessMove move : pieceMoves) {
-            //save the original pieces so the move can be undone
-            ChessPiece startPiece = board.getPiece(move.getStartPosition());
-            ChessPiece endPiece = board.getPiece(move.getEndPosition());
+        pieceMoves.removeIf(this::moveCreatesCheck);
 
-            board.makeMove(move);
-
-            if (isInCheck(pieceColor)) {
-                invalidMoves.add(move);
-            }
-
-            //undo the move
-            board.addPiece(move.getStartPosition(), startPiece);
-            board.addPiece(move.getEndPosition(), endPiece);
-        }
-        pieceMoves.removeAll(invalidMoves);
-
-        Collection<ChessMove> castlingMoves = new SpecialMoves().getCastlingMoves(board, startPosition);
-
-        System.out.println("Castling moves: " + castlingMoves);
-
+        Collection<ChessMove> castlingMoves = new SpecialMoves().getCastlingMoves(this, startPosition);
         if (castlingMoves != null) { pieceMoves.addAll(castlingMoves); }
+
         return pieceMoves;
+    }
+
+    public boolean moveCreatesCheck(ChessMove move) {
+        ChessGame.TeamColor pieceColor = board.getPiece(move.getStartPosition()).getTeamColor();
+        boolean createsCheck = false;
+
+        //save the original pieces so the move can be undone
+        ChessPiece startPiece = board.getPiece(move.getStartPosition());
+        ChessPiece endPiece = board.getPiece(move.getEndPosition());
+
+        board.makeMove(move);
+
+        if (isInCheck(pieceColor)) {
+            createsCheck = true;
+        }
+
+        //undo the move
+        board.addPiece(move.getStartPosition(), startPiece);
+        board.addPiece(move.getEndPosition(), endPiece);
+
+        return createsCheck;
     }
 
     /**
@@ -111,6 +110,7 @@ public class ChessGame {
         //set the hasMoved flag on the piece
         piece.setHasMoved();
 
+        //set the isCastling flag on the piece if the move is castling
         if (piece.getPieceType() == ChessPiece.PieceType.KING && move.getNumColsMoved() > 1) {
             move.setCastling(true);
         }
