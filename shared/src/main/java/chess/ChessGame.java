@@ -12,6 +12,7 @@ public class ChessGame {
 
     private boolean isWhiteTurn = true;
     private ChessBoard board = new ChessBoard();
+    private ChessPosition lastDoubleMovePosition;
 
     public ChessGame() {
         board.resetBoard();
@@ -63,6 +64,9 @@ public class ChessGame {
 
         Collection<ChessMove> castlingMoves = new SpecialMoves().getCastlingMoves(this, startPosition);
         if (castlingMoves != null) { pieceMoves.addAll(castlingMoves); }
+
+        Collection<ChessMove> enPassantMoves = new SpecialMoves().getEnPassantMoves(this, startPosition, lastDoubleMovePosition);
+        if (enPassantMoves != null) { pieceMoves.addAll(enPassantMoves); }
 
         return pieceMoves;
     }
@@ -119,6 +123,19 @@ public class ChessGame {
         //set the isCastling flag on the piece if the move is castling
         if (piece.getPieceType() == ChessPiece.PieceType.KING && move.getNumColsMoved() > 1) {
             move.setCastling(true);
+        }
+
+        lastDoubleMovePosition = null;
+        //set the canBePassed flag if the pawn moved twice and can be En Passant-ed
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN && move.getNumRowsMoved() > 1) {
+            lastDoubleMovePosition = move.getEndPosition();
+        }
+
+        // set the isEnPassant flag if the move is en passant
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN
+                && move.getNumColsMoved() == 1
+                && board.getPiece(move.getEndPosition()) == null) {
+            move.setEnPassant(true);
         }
 
         //make the move and change whose turn it is

@@ -153,6 +153,12 @@ public class ChessBoard {
             addPiece(new ChessPosition(row, rookStartColumn), null);
             addPiece(new ChessPosition(row, rookEndColumn), rook);
         }
+
+        if (move.isEnPassant()) {
+            int direction = getPiece(move.getEndPosition()).getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+            ChessPosition capturePosition = new ChessPosition(move.getEndPosition().getRow() - direction, move.getEndPosition().getColumn());
+            addPiece(capturePosition, null);
+        }
     }
 
 

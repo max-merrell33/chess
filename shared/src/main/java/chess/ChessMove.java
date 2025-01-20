@@ -14,7 +14,9 @@ public class ChessMove {
     private final ChessPosition endPosition;
     private final ChessPiece.PieceType promotionPiece;
     private boolean isCastling = false;
+    private boolean isEnPassant = false;
     private final int numColsMoved;
+    private final int numRowsMoved;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
@@ -23,6 +25,7 @@ public class ChessMove {
         this.promotionPiece = promotionPiece;
 
         numColsMoved = Math.abs(startPosition.getColumn() - endPosition.getColumn());
+        numRowsMoved = Math.abs(startPosition.getRow() - endPosition.getRow());
     }
 
     /**
@@ -86,5 +89,17 @@ public class ChessMove {
 
     public int getNumColsMoved() {
         return numColsMoved;
+    }
+
+    public int getNumRowsMoved() {
+        return numRowsMoved;
+    }
+
+    public boolean isEnPassant() {
+        return isEnPassant;
+    }
+
+    public void setEnPassant(boolean enPassant) {
+        isEnPassant = enPassant;
     }
 }

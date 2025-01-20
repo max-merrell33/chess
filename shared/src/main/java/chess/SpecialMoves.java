@@ -85,8 +85,29 @@ public class SpecialMoves {
         ChessPiece rook = board.getPiece(new ChessPosition(row, rookColNum));
         if (rook == null) { return false; }
         if (rook.getPieceType() != ChessPiece.PieceType.ROOK) { return false; }
-        if (rook.hasMoved()) { return false; }
+        return !rook.hasMoved();
+    }
 
-        return true;
+    public Collection<ChessMove> getEnPassantMoves(ChessGame game, ChessPosition position, ChessPosition lastDoubleMovePosition) {
+        ChessPiece piece = game.getBoard().getPiece(position);
+        ChessPiece.PieceType type = piece.getPieceType();
+
+        int direction = piece.getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        if (type != ChessPiece.PieceType.PAWN) { return null; }
+        ChessPosition leftSquare = new ChessPosition(position.getRow(), position.getColumn() - 1);
+        ChessPosition rightSquare = new ChessPosition(position.getRow(), position.getColumn() + 1);
+
+        if (leftSquare.equals(lastDoubleMovePosition)) {
+            ChessPosition endPosition = new ChessPosition(position.getRow() + direction, position.getColumn() - 1);
+            moves.add(new ChessMove(position, endPosition, null));
+        }
+        if (rightSquare.equals(lastDoubleMovePosition)) {
+            ChessPosition endPosition = new ChessPosition(position.getRow() + direction, position.getColumn() + 1);
+            moves.add(new ChessMove(position, endPosition, null));
+        }
+
+        return moves;
     }
 }
