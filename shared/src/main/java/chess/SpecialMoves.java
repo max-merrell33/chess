@@ -88,6 +88,16 @@ public class SpecialMoves {
         return !rook.hasMoved();
     }
 
+
+    /**
+     * Determines if a pawn can en passant
+     *
+     * @param game the ChessGame
+     * @param position the position of the pawn that is capturing
+     * @param lastDoubleMovePosition the position on the board of the pawn that double moved last turn,
+     *                               null if a pawn did not double move last turn
+     * @return The valid En Passant moves that the pawn can perform
+     */
     public Collection<ChessMove> getEnPassantMoves(ChessGame game, ChessPosition position, ChessPosition lastDoubleMovePosition) {
         ChessPiece piece = game.getBoard().getPiece(position);
         ChessPiece.PieceType type = piece.getPieceType();
