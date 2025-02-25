@@ -2,7 +2,6 @@ package chess;
 
 import chess.movecalculator.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -78,36 +77,15 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
 
-        switch (board.getPiece(myPosition).getPieceType()) {
-            case KING:
-                KingMovesCalculator kingMovesCalculator = new KingMovesCalculator();
-                moves = kingMovesCalculator.pieceMoves(board, myPosition);
-                break;
-            case QUEEN:
-                QueenMovesCalculator queenMovesCalculator = new QueenMovesCalculator();
-                moves = queenMovesCalculator.pieceMoves(board, myPosition);
-                break;
-            case BISHOP:
-                BishopMovesCalculator bishopMovesCalculator = new BishopMovesCalculator();
-                moves = bishopMovesCalculator.pieceMoves(board, myPosition);
-                break;
-            case KNIGHT:
-                KnightMovesCalculator knightMovesCalculator = new KnightMovesCalculator();
-                moves = knightMovesCalculator.pieceMoves(board, myPosition);
-                break;
-            case ROOK:
-                RookMovesCalculator rookMovesCalculator = new RookMovesCalculator();
-                moves = rookMovesCalculator.pieceMoves(board, myPosition);
-                break;
-            case PAWN:
-                PawnMovesCalculator pawnMovesCalculator = new PawnMovesCalculator();
-                moves = pawnMovesCalculator.pieceMoves(board, myPosition);
-                break;
-            default:
-        }
-        return moves;
+        return switch (board.getPiece(myPosition).getPieceType()) {
+            case KING -> new KingMovesCalculator().pieceMoves(board, myPosition);
+            case QUEEN -> new QueenMovesCalculator().pieceMoves(board, myPosition);
+            case BISHOP -> new BishopMovesCalculator().pieceMoves(board, myPosition);
+            case KNIGHT -> new KnightMovesCalculator().pieceMoves(board, myPosition);
+            case ROOK -> new RookMovesCalculator().pieceMoves(board, myPosition);
+            case PAWN -> new PawnMovesCalculator().pieceMoves(board, myPosition);
+        };
     }
 
     @Override
