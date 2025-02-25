@@ -3,19 +3,19 @@ package dataaccess;
 import model.AuthData;
 
 public class SQLAuthDAO implements AuthDAO {
-    public AuthData createAuth(String authToken, String username) {
+    public AuthData createAuth(String authToken, String username) throws DataAccessException {
         return null;
     }
 
-    public AuthData getAuth(String authToken) {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         return null;
     }
 
-    public void removeAuth(String authToken) {
+    public void removeAuth(String authToken) throws DataAccessException {
 
     }
 
-    public void deleteAllAuths() {
+    public void deleteAllAuths() throws DataAccessException {
 
     }
 }
