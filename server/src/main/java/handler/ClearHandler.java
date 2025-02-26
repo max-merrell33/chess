@@ -2,9 +2,7 @@ package handler;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import dataaccess.GameDAO;
 import service.ClearService;
-import service.UserService;
 import spark.Request;
 import spark.Response;
 

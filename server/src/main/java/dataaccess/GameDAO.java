@@ -7,20 +7,20 @@ import java.util.Collection;
 
 public interface GameDAO {
     //createGame
-    public int createGame(String gameName) throws DataAccessException;
+    int createGame(String gameName) throws DataAccessException;
 
     //getGame
-    public GameData getGame(int gameId) throws DataAccessException;
+    GameData getGame(int gameId) throws DataAccessException;
 
     //listGames
-    public Collection<GameDataTX> getAllGames() throws DataAccessException;
+    Collection<GameDataTX> getAllGames() throws DataAccessException;
 
     //updateGame
-    public void updateGame(int gameId, String username, boolean isWhite) throws DataAccessException;
+    void updateGame(int gameId, String username, boolean isWhite) throws DataAccessException;
 
     //deleteGame
-    public void deleteGame(int gameId) throws DataAccessException;
+    void deleteGame(int gameId) throws DataAccessException;
 
     //deleteAllGames
-    public void deleteAllGames() throws DataAccessException;
+    void deleteAllGames() throws DataAccessException;
 }
