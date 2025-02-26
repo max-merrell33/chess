@@ -1,5 +1,5 @@
 package model.result;
 
 public class Result {
-    String message;
+    public String message;
 }

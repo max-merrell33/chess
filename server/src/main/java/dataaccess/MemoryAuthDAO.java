@@ -8,7 +8,7 @@ public class MemoryAuthDAO implements AuthDAO {
     private final HashMap<String, AuthData> allAuthData = new HashMap<>();
 
     //createAuth
-    public AuthData createAuth(String authToken, String username) throws DataAccessException {
+    public AuthData createAuth(String authToken, String username) {
         var newAuthData = new AuthData(authToken, username);
 
         allAuthData.put(authToken, newAuthData);
@@ -16,17 +16,17 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     //getAuth
-    public AuthData getAuth(String authToken) throws DataAccessException {
+    public AuthData getAuth(String authToken) {
         return allAuthData.get(authToken);
     }
 
     //deleteAuth
-    public void removeAuth(String authToken) throws DataAccessException {
+    public void removeAuth(String authToken) {
         allAuthData.remove(authToken);
     }
 
     //deleteAllAuth
-    public void deleteAllAuths() throws DataAccessException {
+    public void deleteAllAuths() {
         allAuthData.clear();
     }
 }
