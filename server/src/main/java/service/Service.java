@@ -1,7 +1,6 @@
 package service;
 
 import dataaccess.*;
-import model.AuthData;
 
 public class Service {
     protected final UserDAO userDAO;

@@ -19,6 +19,10 @@ public class MemoryGameDAO implements GameDAO {
         return newGameID;
     }
 
+    public GameData getGame(int gameId) throws DataAccessException {
+        return allGameData.get(gameId);
+    }
+
     //listGames
     public Collection<GameDataTX> getAllGames() throws DataAccessException {
         return allGameData.values().stream()
@@ -27,8 +31,16 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     //updateGame
-    public void updateGame(GameData gameData) throws DataAccessException {
-        allGameData.put(gameData.gameID(), gameData);
+    public void updateGame(int gameId, String username, boolean isWhite) throws DataAccessException {
+        GameData gameToUpdate = allGameData.get(gameId);
+        GameData newGame;
+        if (isWhite) {
+            newGame = new GameData(gameId, username, gameToUpdate.blackUsername(), gameToUpdate.gameName(), gameToUpdate.game());
+        } else {
+            newGame = new GameData(gameId, gameToUpdate.whiteUsername(), username, gameToUpdate.gameName(), gameToUpdate.game());
+        }
+
+        allGameData.put(gameId, newGame);
     }
 
     //deleteGame

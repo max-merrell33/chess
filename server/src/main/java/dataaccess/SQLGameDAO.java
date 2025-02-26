@@ -11,11 +11,15 @@ public class SQLGameDAO implements GameDAO {
         return 0;
     }
 
+    public GameData getGame(int gameId) throws DataAccessException {
+        return null;
+    }
+
     public Collection<GameDataTX> getAllGames() throws DataAccessException {
         return List.of();
     }
 
-    public void updateGame(GameData gameData) throws DataAccessException {
+    public void updateGame(int gameId, String username, boolean isWhite) throws DataAccessException {
 
     }
 

@@ -1,9 +1,11 @@
 package model.request;
 
-import chess.ChessGame;
-
 public class JoinRequest extends Request {
     public String authToken;
-    public ChessGame.TeamColor playerColor;
+    public String playerColor;
     public int gameID;
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
 }
