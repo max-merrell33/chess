@@ -4,17 +4,17 @@ import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import model.request.LoginRequest;
+import model.request.LogoutRequest;
 import model.request.RegisterRequest;
 import model.result.LoginResult;
+import model.result.LogoutResult;
 import model.result.RegisterResult;
 import server.ResponseException;
 
 import java.util.UUID;
 
-public class UserService {
+public class UserService extends Service {
     // register, login, logout
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
 
     public RegisterResult register(RegisterRequest req) throws ResponseException {
         try {
@@ -45,14 +45,15 @@ public class UserService {
             LoginResult res = new LoginResult();
 
             UserData user = userDAO.getUser(req.username);
-            if (user != null && user.password().equals(req.password)) {
-                AuthData newAuthData = authDAO.createAuth(UUID.randomUUID().toString(), req.username);
 
-                res.authToken = newAuthData.authToken();
-                res.username = req.username;
-            } else {
+            if (user == null || !user.password().equals(req.password)) {
                 throw new ResponseException(401, "unauthorized");
             }
+
+            AuthData newAuthData = authDAO.createAuth(UUID.randomUUID().toString(), req.username);
+
+            res.authToken = newAuthData.authToken();
+            res.username = req.username;
 
             return res;
         } catch (DataAccessException e) {
@@ -60,4 +61,25 @@ public class UserService {
         }
     }
 
+    public LogoutResult logout(LogoutRequest req) throws ResponseException {
+        try {
+            if (authDAO.getAuth(req.authToken) == null) {
+                throw new ResponseException(401, "unauthorized");
+            }
+
+            authDAO.deleteAuth(req.authToken);
+            return new LogoutResult();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
 }
+
+
+
+
+
+
+
+

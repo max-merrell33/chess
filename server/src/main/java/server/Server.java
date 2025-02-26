@@ -2,6 +2,7 @@ package server;
 
 import handler.ClearHandler;
 import handler.LoginHandler;
+import handler.LogoutHandler;
 import handler.RegisterHandler;
 import service.ClearService;
 import service.GameService;
@@ -22,6 +23,9 @@ public class Server {
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", (req, res) -> RegisterHandler.registerHandler(req, res, userService));
         Spark.post("/session", (req, res) -> LoginHandler.loginHandler(req, res, userService));
+        Spark.delete("/session", (req, res) -> LogoutHandler.logoutHandler(req, res, userService));
+
+
         Spark.delete("/db", (req, res) -> ClearHandler.clearHandler(req, res, clearService));
 
         Spark.exception(ResponseException.class, this::exceptionHandler);
@@ -31,10 +35,8 @@ public class Server {
     }
 
     private void exceptionHandler(ResponseException ex, Request req, Response res) {
-
         res.status(ex.StatusCode());
         res.body(ex.toJson());
-
     }
 
     public void stop() {

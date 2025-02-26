@@ -11,7 +11,7 @@ public class SQLAuthDAO implements AuthDAO {
         return null;
     }
 
-    public void removeAuth(String authToken) throws DataAccessException {
+    public void deleteAuth(String authToken) throws DataAccessException {
 
     }
 
