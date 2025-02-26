@@ -3,11 +3,11 @@ package service;
 import dataaccess.*;
 import model.result.ClearResult;
 
-public class ClearService {
+public class ClearService extends Service {
 
-    private final UserDAO userDAO = new MemoryUserDAO();
-    private final AuthDAO authDAO = new MemoryAuthDAO();
-    private final GameDAO gameDAO = new MemoryGameDAO();
+    public ClearService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+        super(userDAO, authDAO, gameDAO);
+    }
 
     public ClearResult clear() throws DataAccessException {
         userDAO.deleteAllUsers();

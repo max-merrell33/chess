@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class SQLGameDAO implements GameDAO {
-    public void createGame(GameData gameData) throws DataAccessException {
-
+    public int createGame(String gameName) throws DataAccessException {
+        return 0;
     }
 
     public Collection<GameData> getAllGames() throws DataAccessException {

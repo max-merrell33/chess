@@ -4,8 +4,13 @@ import dataaccess.*;
 import model.AuthData;
 
 public class Service {
-    protected final UserDAO userDAO = new MemoryUserDAO();
-    protected final AuthDAO authDAO = new MemoryAuthDAO();
-    protected final GameDAO gameDAO = new MemoryGameDAO();
+    protected final UserDAO userDAO;
+    protected final AuthDAO authDAO;
+    protected final GameDAO gameDAO;
 
+    public Service(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+    }
 }

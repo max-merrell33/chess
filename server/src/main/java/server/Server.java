@@ -1,9 +1,7 @@
 package server;
 
-import handler.ClearHandler;
-import handler.LoginHandler;
-import handler.LogoutHandler;
-import handler.RegisterHandler;
+import dataaccess.*;
+import handler.*;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -11,9 +9,13 @@ import spark.*;
 
 public class Server {
 
-    private final UserService userService = new UserService();
-    private final GameService gameService = new GameService();
-    private final ClearService clearService = new ClearService();
+    protected final UserDAO userDAO = new MemoryUserDAO();
+    protected final AuthDAO authDAO = new MemoryAuthDAO();
+    protected final GameDAO gameDAO = new MemoryGameDAO();
+
+    private final UserService userService = new UserService(userDAO, authDAO, gameDAO);
+    private final GameService gameService = new GameService(userDAO, authDAO, gameDAO);
+    private final ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -24,6 +26,7 @@ public class Server {
         Spark.post("/user", (req, res) -> RegisterHandler.registerHandler(req, res, userService));
         Spark.post("/session", (req, res) -> LoginHandler.loginHandler(req, res, userService));
         Spark.delete("/session", (req, res) -> LogoutHandler.logoutHandler(req, res, userService));
+        Spark.post("/game",(req, res) -> CreateHandler.createHandler(req, res, gameService));
 
 
         Spark.delete("/db", (req, res) -> ClearHandler.clearHandler(req, res, clearService));

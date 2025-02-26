@@ -10,9 +10,7 @@ import spark.Response;
 
 public class LogoutHandler {
     public static Object logoutHandler(Request req, Response res, UserService userService) throws ResponseException {
-        System.out.println("body: " + req.body() + " headers: " + req.headers() + " params: " + req.params() + " map: " + req.queryMap());
-
-        LogoutRequest logoutReq = new LogoutRequest(req.headers("Authorization"));
+        LogoutRequest logoutReq = new LogoutRequest(req.headers("authorization"));
         LogoutResult logoutRes = userService.logout(logoutReq);
         return new Gson().toJson(logoutRes);
     }

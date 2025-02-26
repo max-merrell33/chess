@@ -15,6 +15,9 @@ import java.util.UUID;
 
 public class UserService extends Service {
     // register, login, logout
+    public UserService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+        super(userDAO, authDAO, gameDAO);
+    }
 
     public RegisterResult register(RegisterRequest req) throws ResponseException {
         try {
