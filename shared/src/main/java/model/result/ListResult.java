@@ -1,9 +1,13 @@
 package model.result;
 
-import model.GameData;
+import model.GameDataTX;
 
 import java.util.Collection;
 
 public class ListResult extends Result {
-    public Collection<GameData> games;
+    public Collection<GameDataTX> games;
+
+    public ListResult(Collection<GameDataTX> games) {
+        this.games = games;
+    }
 }

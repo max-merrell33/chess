@@ -26,8 +26,9 @@ public class Server {
         Spark.post("/user", (req, res) -> RegisterHandler.registerHandler(req, res, userService));
         Spark.post("/session", (req, res) -> LoginHandler.loginHandler(req, res, userService));
         Spark.delete("/session", (req, res) -> LogoutHandler.logoutHandler(req, res, userService));
-        Spark.post("/game",(req, res) -> CreateHandler.createHandler(req, res, gameService));
 
+        Spark.get("/game",(req, res) -> ListHandler.listHandler(req, res, gameService));
+        Spark.post("/game",(req, res) -> CreateHandler.createHandler(req, res, gameService));
 
         Spark.delete("/db", (req, res) -> ClearHandler.clearHandler(req, res, clearService));
 

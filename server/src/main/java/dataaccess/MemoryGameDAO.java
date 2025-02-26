@@ -2,6 +2,7 @@ package dataaccess;
 
 import chess.ChessGame;
 import model.GameData;
+import model.GameDataTX;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,8 +20,10 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     //listGames
-    public Collection<GameData> getAllGames() throws DataAccessException {
-        return allGameData.values();
+    public Collection<GameDataTX> getAllGames() throws DataAccessException {
+        return allGameData.values().stream()
+                .map(GameDataTX::new)
+                .toList();
     }
 
     //updateGame

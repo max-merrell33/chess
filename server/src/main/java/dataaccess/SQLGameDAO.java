@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.GameData;
+import model.GameDataTX;
 
 import java.util.Collection;
 import java.util.List;
@@ -10,7 +11,7 @@ public class SQLGameDAO implements GameDAO {
         return 0;
     }
 
-    public Collection<GameData> getAllGames() throws DataAccessException {
+    public Collection<GameDataTX> getAllGames() throws DataAccessException {
         return List.of();
     }
 
