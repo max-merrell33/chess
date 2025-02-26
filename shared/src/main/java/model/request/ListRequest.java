@@ -1,5 +1,5 @@
 package model.request;
 
 public class ListRequest extends Request {
-    String authToken;
+    public String authToken;
 }

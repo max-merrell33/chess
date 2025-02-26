@@ -1,17 +1,18 @@
 package handler;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
 import model.request.RegisterRequest;
 import model.result.RegisterResult;
+import server.ResponseException;
 import service.UserService;
 import spark.*;
 
 public class RegisterHandler {
 
-    public static Object registerHandler(Request req, Response res) throws DataAccessException {
+    public static Object registerHandler(Request req, Response res, UserService userService) throws ResponseException {
         RegisterRequest regReq = new Gson().fromJson(req.body(), RegisterRequest.class);
-        RegisterResult regRes = new UserService().register(regReq);
+        RegisterResult regRes = userService.register(regReq);
         return new Gson().toJson(regRes);
+
     }
 }

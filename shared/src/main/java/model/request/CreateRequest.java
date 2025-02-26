@@ -1,6 +1,6 @@
 package model.request;
 
 public class CreateRequest extends Request {
-    String authToken;
-    String gameName;
+    public String authToken;
+    public String gameName;
 }
