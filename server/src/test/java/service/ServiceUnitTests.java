@@ -45,7 +45,32 @@ public class ServiceUnitTests {
 
     @Test
     @DisplayName("Good Clear")
-    public void goodClear() {
+    public void goodClear() throws ResponseException {
+        ResponseException exception;
+        // Create games
+        gameService.createGame(new CreateRequest(testAuthToken, "Game1"));
+        gameService.createGame(new CreateRequest(testAuthToken, "Game2"));
+
+        // Clear the DB
+        clearService.clear();
+
+        //Verify that the user can no longer log in
+        exception = assertThrows(ResponseException.class, () -> {
+            userService.login(new LoginRequest("username", "password"));
+        });
+        Assertions.assertEquals(401, exception.statusCode());
+
+        //Verify that the old authToken does not work
+        exception = assertThrows(ResponseException.class, () -> {
+            gameService.listGames(new ListRequest(testAuthToken));
+        });
+        Assertions.assertEquals(401, exception.statusCode());
+
+        //Log in again and verify that all the games are gone
+        RegisterResult res = userService.register(testUserReg);
+        testAuthToken = res.authToken;
+
+        Assertions.assertEquals(0, gameService.listGames(new ListRequest(testAuthToken)).games.size());
 
     }
 
