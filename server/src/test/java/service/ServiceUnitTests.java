@@ -8,6 +8,7 @@ import org.junit.jupiter.api.*;
 import server.ResponseException;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -63,7 +64,7 @@ public class ServiceUnitTests {
 
     @Test
     @DisplayName("Register with Blank Username")
-    public void badRegisterBlankUsername() throws ResponseException {
+    public void badRegisterBlankUsername() {
         RegisterRequest req = new RegisterRequest("", "password", "email@gmail.com");
 
         ResponseException exception = assertThrows(ResponseException.class, () -> {
@@ -75,7 +76,7 @@ public class ServiceUnitTests {
 
     @Test
     @DisplayName("Register with Blank Username")
-    public void badRegisterBlankPassword() throws ResponseException {
+    public void badRegisterBlankPassword() {
         RegisterRequest req = new RegisterRequest("username", "", "email@gmail.com");
 
         ResponseException exception = assertThrows(ResponseException.class, () -> {
@@ -87,7 +88,7 @@ public class ServiceUnitTests {
 
     @Test
     @DisplayName("Register with Blank Email")
-    public void badRegisterBlankEmail() throws ResponseException {
+    public void badRegisterBlankEmail() {
         RegisterRequest req = new RegisterRequest("username", "password", "");
 
         ResponseException exception = assertThrows(ResponseException.class, () -> {
@@ -99,7 +100,7 @@ public class ServiceUnitTests {
 
     @Test
     @DisplayName("Register Same User Twice")
-    public void badRegisterTwice() throws ResponseException {
+    public void badRegisterTwice() {
         ResponseException exception = assertThrows(ResponseException.class, () -> {
             userService.register(testUserReg);
         });
@@ -146,7 +147,7 @@ public class ServiceUnitTests {
 
     @Test
     @DisplayName("Bad Logout")
-    public void badLogout() throws ResponseException {
+    public void badLogout() {
         // Assert that a logout request with an invalid token will return 401 - Unauthorized
         ResponseException exception = assertThrows(ResponseException.class, () -> {
             userService.logout(new LogoutRequest("notARealToken"));
@@ -190,18 +191,16 @@ public class ServiceUnitTests {
         Assertions.assertNotNull(res, "Create result is null");
         Assertions.assertNotEquals(0, res.gameID, "Create result gameID is 0");
 
-        ListResult listRes = gameService.listGames(new ListRequest(testAuthToken));
+        Collection<GameDataTX> gameList = gameService.listGames(new ListRequest(testAuthToken)).games;
 
-        List<GameDataTX> gamesList = new ArrayList<>(listRes.games);
-        List<String> gameNames = List.of(gamesList.get(0).gameName(), gamesList.get(1).gameName());
-
-        Assertions.assertTrue(gameNames.contains("Game1"));
+        Assertions.assertEquals(1, gameList.size(), "Game was not created successfully");
+        Assertions.assertEquals("Game1", gameList.iterator().next().gameName(), "Game was created but with an incorrect name");
 
     }
 
     @Test
     @DisplayName("Bad Create Game Bad Auth")
-    public void badCreateGameBadAuth() throws ResponseException {
+    public void badCreateGameBadAuth() {
         ResponseException exception = assertThrows(ResponseException.class, () -> {
             gameService.createGame(new CreateRequest("notARealToken", "Game1"));
         });
@@ -210,7 +209,7 @@ public class ServiceUnitTests {
 
     @Test
     @DisplayName("Bad Create Game Blank Name")
-    public void badCreateGameBlankName() throws ResponseException {
+    public void badCreateGameBlankName() {
         ResponseException exception = assertThrows(ResponseException.class, () -> {
             gameService.createGame(new CreateRequest(testAuthToken, ""));
         });
@@ -219,18 +218,66 @@ public class ServiceUnitTests {
     }
 
     @Test
-    @DisplayName("Good Join Game")
-    public void goodJoinGame() throws ResponseException {
+    @DisplayName("Good Join Game White")
+    public void goodJoinGameWhite() throws ResponseException {
         int gameID = gameService.createGame(new CreateRequest(testAuthToken, "Game1")).gameID;
 
+        gameService.joinGame(new JoinRequest(testAuthToken, "WHITE", gameID));
 
+        Collection<GameDataTX> gameData = gameService.listGames(new ListRequest(testAuthToken)).games;
+        GameDataTX gameDataObj = gameData.iterator().next();
+
+        Assertions.assertEquals(gameID, gameDataObj.gameID());
+        Assertions.assertEquals("username", gameDataObj.whiteUsername(), "White username was not updated");
 
     }
 
     @Test
-    @DisplayName("Bad Join Game")
-    public void badJoinGame() {
+    @DisplayName("Good Join Game Black")
+    public void goodJoinGameBlack() throws ResponseException {
+        int gameID = gameService.createGame(new CreateRequest(testAuthToken, "Game1")).gameID;
 
+        gameService.joinGame(new JoinRequest(testAuthToken, "BLACK", gameID));
+
+        Collection<GameDataTX> gameData = gameService.listGames(new ListRequest(testAuthToken)).games;
+        GameDataTX gameDataObj = gameData.iterator().next();
+
+        Assertions.assertEquals(gameID, gameDataObj.gameID());
+        Assertions.assertEquals("username", gameDataObj.blackUsername(), "Black username was not updated");
+
+    }
+
+    @Test
+    @DisplayName("Bad Join Game Bad Auth")
+    public void badJoinGameBadAuth() throws ResponseException {
+        int gameID = gameService.createGame(new CreateRequest(testAuthToken, "Game1")).gameID;
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            gameService.joinGame(new JoinRequest("notARealToken", "BLACK", gameID));
+        });
+        Assertions.assertEquals(401, exception.statusCode());
+    }
+
+    @Test
+    @DisplayName("Bad Join Game Bad Color")
+    public void badJoinGameBadColor() throws ResponseException {
+        int gameID = gameService.createGame(new CreateRequest(testAuthToken, "Game1")).gameID;
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            gameService.joinGame(new JoinRequest(testAuthToken, "NOTACOLOR", gameID));
+        });
+        Assertions.assertEquals(400, exception.statusCode());
+    }
+
+    @Test
+    @DisplayName("Bad Join Game Empty ID")
+    public void badJoinGameEmptyID() throws ResponseException {
+        gameService.createGame(new CreateRequest(testAuthToken, "Game1"));
+
+        ResponseException exception = assertThrows(ResponseException.class, () -> {
+            gameService.joinGame(new JoinRequest(testAuthToken, "BLACK", 0));
+        });
+        Assertions.assertEquals(400, exception.statusCode());
     }
 
 }
