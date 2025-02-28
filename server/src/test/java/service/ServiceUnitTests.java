@@ -161,7 +161,7 @@ public class ServiceUnitTests {
     @Test
     @DisplayName("Good Logout")
     public void goodLogout() throws ResponseException {
-        LogoutResult res = userService.logout(new LogoutRequest(testAuthToken));
+        userService.logout(new LogoutRequest(testAuthToken));
 
         // Assert that after logging out, a request with the old token returns 401 - Unauthorized
         ResponseException exception = assertThrows(ResponseException.class, () -> {
