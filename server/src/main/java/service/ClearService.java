@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.result.ClearResult;
+import server.ResponseException;
 
 public class ClearService extends Service {
 
@@ -9,11 +10,15 @@ public class ClearService extends Service {
         super(userDAO, authDAO, gameDAO);
     }
 
-    public ClearResult clear() throws DataAccessException {
-        userDAO.deleteAllUsers();
-        authDAO.deleteAllAuths();
-        gameDAO.deleteAllGames();
+    public ClearResult clear() throws ResponseException {
+        try {
+            userDAO.deleteAllUsers();
+            authDAO.deleteAllAuths();
+            gameDAO.deleteAllGames();
 
-        return new ClearResult();
+            return new ClearResult();
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
     }
 }

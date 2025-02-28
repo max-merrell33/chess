@@ -37,7 +37,7 @@ public class GameService extends Service {
             if (authDAO.getAuth(req.authToken) == null) {
                 throw new ResponseException(401, "unauthorized");
             }
-            if (req.gameName == null) {
+            if (req.gameName == null || req.gameName.isBlank()) {
                 throw new ResponseException(400, "bad request");
             }
             int newGameID = gameDAO.createGame(req.gameName);
@@ -54,7 +54,7 @@ public class GameService extends Service {
             if (authData == null) {
                 throw new ResponseException(401, "unauthorized");
             }
-            if (req.playerColor == null) {
+            if (req.playerColor == null || req.playerColor.isBlank()) {
                 throw new ResponseException(400, "bad request");
             }
             if (!req.playerColor.equals("WHITE") && !req.playerColor.equals("BLACK")) {

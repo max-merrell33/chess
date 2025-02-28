@@ -27,6 +27,10 @@ public class UserService extends Service {
                 throw new ResponseException(400, "bad request");
             }
 
+            if (req.username.isBlank() || req.password.isBlank() || req.email.isBlank()) {
+                throw new ResponseException(400, "bad request");
+            }
+
             if (userDAO.getUser(req.username) != null) {
                 throw new ResponseException(403, "already taken");
             }
