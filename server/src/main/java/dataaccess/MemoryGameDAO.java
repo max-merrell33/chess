@@ -43,11 +43,6 @@ public class MemoryGameDAO implements GameDAO {
         allGameData.put(gameId, newGame);
     }
 
-    //deleteGame
-    public void deleteGame(int gameId) throws DataAccessException {
-        allGameData.remove(gameId);
-    }
-
     //deleteAllGames
     public void deleteAllGames() throws DataAccessException {
         allGameData.clear();

@@ -18,9 +18,6 @@ public interface GameDAO {
     //updateGame
     void updateGame(int gameId, String username, boolean isWhite) throws DataAccessException;
 
-    //deleteGame
-    void deleteGame(int gameId) throws DataAccessException;
-
     //deleteAllGames
     void deleteAllGames() throws DataAccessException;
 }

@@ -23,10 +23,6 @@ public class SQLGameDAO implements GameDAO {
 
     }
 
-    public void deleteGame(int gameId) throws DataAccessException {
-
-    }
-
     public void deleteAllGames() throws DataAccessException {
 
     }
