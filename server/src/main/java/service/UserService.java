@@ -54,7 +54,7 @@ public class UserService extends Service {
 
             UserData user = userDAO.getUser(req.username);
 
-            if (user == null || BCrypt.checkpw(req.password, user.password())) {
+            if (user == null || !BCrypt.checkpw(req.password, user.password())) {
                 throw new ResponseException(401, "unauthorized");
             }
 
