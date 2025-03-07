@@ -9,6 +9,7 @@ import model.request.RegisterRequest;
 import model.result.LoginResult;
 import model.result.LogoutResult;
 import model.result.RegisterResult;
+import org.mindrot.jbcrypt.BCrypt;
 import server.ResponseException;
 
 import java.util.UUID;
@@ -35,7 +36,7 @@ public class UserService extends Service {
                 throw new ResponseException(403, "already taken");
             }
 
-            userDAO.createUser(new UserData(req.username, req.password, req.email));
+            userDAO.createUser(new UserData(req.username, BCrypt.hashpw(req.password, BCrypt.gensalt()), req.email));
             AuthData newAuthData = authDAO.createAuth(UUID.randomUUID().toString(), req.username);
 
             res.authToken = newAuthData.authToken();
@@ -53,7 +54,7 @@ public class UserService extends Service {
 
             UserData user = userDAO.getUser(req.username);
 
-            if (user == null || !user.password().equals(req.password)) {
+            if (user == null || BCrypt.checkpw(req.password, user.password())) {
                 throw new ResponseException(401, "unauthorized");
             }
 
