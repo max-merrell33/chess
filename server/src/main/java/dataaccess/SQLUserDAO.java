@@ -21,7 +21,7 @@ public class SQLUserDAO implements UserDAO {
 
     public UserData getUser(String username) throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT * FROM pet WHERE username=?";
+            var statement = "SELECT * FROM users WHERE username=?";
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (var rs = ps.executeQuery()) {
@@ -37,7 +37,7 @@ public class SQLUserDAO implements UserDAO {
     }
 
     public void deleteAllUsers() throws DataAccessException {
-        var statement = "TRUNCATE pet";
+        var statement = "TRUNCATE users";
         executeUpdate(statement);
     }
 
@@ -87,8 +87,8 @@ public class SQLUserDAO implements UserDAO {
             """
             CREATE TABLE IF NOT EXISTS games (
                 `gameID` INT NOT NULL AUTO_INCREMENT,
-                `whiteUsername` VARCHAR(255) NOT NULL,
-                `blackUsername` VARCHAR(255) NOT NULL,
+                `whiteUsername` VARCHAR(255) DEFAULT NULL,
+                `blackUsername` VARCHAR(255) DEFAULT NULL,
                 `gameName` VARCHAR(255) NOT NULL,
                 `game` TEXT DEFAULT NULL,
                 PRIMARY KEY (`gameID`),

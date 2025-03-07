@@ -9,18 +9,36 @@ import spark.*;
 
 public class Server {
 
-    protected final UserDAO userDAO = new MemoryUserDAO();
-    protected final AuthDAO authDAO = new MemoryAuthDAO();
-    protected final GameDAO gameDAO = new MemoryGameDAO();
+    protected UserDAO userDAO;
+    protected AuthDAO authDAO;
+    protected GameDAO gameDAO;
 
-    private final UserService userService = new UserService(userDAO, authDAO, gameDAO);
-    private final GameService gameService = new GameService(userDAO, authDAO, gameDAO);
-    private final ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
+    private UserService userService;
+    private GameService gameService;
+    private ClearService clearService;
+
+    private void init() {
+        try {
+            userDAO = new SQLUserDAO();
+            authDAO = new MemoryAuthDAO();
+            gameDAO = new MemoryGameDAO();
+
+            userService = new UserService(userDAO, authDAO, gameDAO);
+            gameService = new GameService(userDAO, authDAO, gameDAO);
+            clearService = new ClearService(userDAO, authDAO, gameDAO);
+        } catch (DataAccessException e) {
+            System.err.println("Failed to initialize DAOs: " + e.getMessage());
+            throw new RuntimeException("Server failed to initialize due to database error.", e);
+        }
+
+    }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        init();
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", (req, res) -> RegisterHandler.registerHandler(req, res, userService));
