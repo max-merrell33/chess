@@ -31,16 +31,8 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     //updateGame
-    public void updateGame(int gameId, String username, boolean isWhite) throws DataAccessException {
-        GameData gameToUpdate = allGameData.get(gameId);
-        GameData newGame;
-        if (isWhite) {
-            newGame = new GameData(gameId, username, gameToUpdate.blackUsername(), gameToUpdate.gameName(), gameToUpdate.game());
-        } else {
-            newGame = new GameData(gameId, gameToUpdate.whiteUsername(), username, gameToUpdate.gameName(), gameToUpdate.game());
-        }
-
-        allGameData.put(gameId, newGame);
+    public void updateGame(GameData gameData) throws DataAccessException {
+        allGameData.put(gameData.gameID(), gameData);
     }
 
     //deleteAllGames

@@ -59,14 +59,15 @@ public class SQLGameDAO implements GameDAO {
         return result;
     }
 
-    public void updateGame(int gameId, String username, boolean isWhite) throws DataAccessException {
-        String statement;
-        if (isWhite) {
-            statement = "UPDATE games SET whiteUsername = ? WHERE gameID = ?";
-        } else {
-            statement = "UPDATE games SET blackUsername = ? WHERE gameID = ?";
-        }
-        utilsDB.executeUpdate(statement, username, gameId);
+    public void updateGame(GameData gameData) throws DataAccessException {
+        String statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, game = ? WHERE gameID = ?";
+
+        utilsDB.executeUpdate(statement,
+                gameData.whiteUsername(),
+                gameData.blackUsername(),
+                new Gson().toJson(gameData.game()),
+                gameData.gameID()
+        );
     }
 
     public void deleteAllGames() throws DataAccessException {

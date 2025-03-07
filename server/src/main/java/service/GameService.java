@@ -63,6 +63,7 @@ public class GameService extends Service {
 
             boolean isWhite = req.playerColor.equals("WHITE");
             GameData oldGame = gameDAO.getGame(req.gameID);
+            GameData updatedGame;
 
             if (oldGame == null) {
                 throw new ResponseException(400, "bad request");
@@ -72,13 +73,15 @@ public class GameService extends Service {
                 if (oldGame.whiteUsername() != null) {
                     throw new ResponseException(403, "already taken");
                 }
+                updatedGame = new GameData(oldGame.gameID(), authData.username(), oldGame.blackUsername(), oldGame.gameName(), oldGame.game());
             } else {
                 if (oldGame.blackUsername() != null) {
                     throw new ResponseException(403, "already taken");
                 }
+                updatedGame = new GameData(oldGame.gameID(), oldGame.whiteUsername(), authData.username(), oldGame.gameName(), oldGame.game());
             }
 
-            gameDAO.updateGame(req.gameID, authData.username(), isWhite);
+            gameDAO.updateGame(updatedGame);
 
             return new JoinResult();
 
