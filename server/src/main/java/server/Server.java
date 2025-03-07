@@ -20,7 +20,7 @@ public class Server {
     private void init() {
         try {
             userDAO = new SQLUserDAO();
-            authDAO = new MemoryAuthDAO();
+            authDAO = new SQLAuthDAO();
             gameDAO = new MemoryGameDAO();
 
             userService = new UserService(userDAO, authDAO, gameDAO);

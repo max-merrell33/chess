@@ -38,8 +38,7 @@ public class UtilsDB {
             CREATE TABLE IF NOT EXISTS auth (
                 `authToken` VARCHAR(255) NOT NULL,
                 `username` VARCHAR(255) NOT NULL,
-                PRIMARY KEY (`authToken`),
-                FOREIGN KEY (`username`) REFERENCES users(`username`)
+                PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """,
             """
@@ -49,9 +48,7 @@ public class UtilsDB {
                 `blackUsername` VARCHAR(255) DEFAULT NULL,
                 `gameName` VARCHAR(255) NOT NULL,
                 `game` TEXT DEFAULT NULL,
-                PRIMARY KEY (`gameID`),
-                FOREIGN KEY (`whiteUsername`) REFERENCES users(`username`),
-                FOREIGN KEY (`blackUsername`) REFERENCES users(`username`)
+                PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
             """
     };

@@ -5,9 +5,6 @@ import model.UserData;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
 public class SQLUserDAO implements UserDAO {
 
     UtilsDB utilsDB = new UtilsDB();
