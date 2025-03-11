@@ -60,9 +60,10 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGame(GameData gameData) throws DataAccessException {
-        String statement = "UPDATE games SET whiteUsername = ?, blackUsername = ?, game = ? WHERE gameID = ?";
+        String statement = "UPDATE games SET gameName = ?, whiteUsername = ?, blackUsername = ?, game = ? WHERE gameID = ?";
 
         utilsDB.executeUpdate(statement,
+                gameData.gameName(),
                 gameData.whiteUsername(),
                 gameData.blackUsername(),
                 new Gson().toJson(gameData.game()),

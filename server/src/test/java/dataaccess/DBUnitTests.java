@@ -1,10 +1,15 @@
 package dataaccess;
 
-import chess.ChessBoard;
 import chess.ChessGame;
-import model.request.ListRequest;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
+import model.GameData;
+import model.GameDataTX;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
+
+import java.util.Collection;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -121,31 +126,55 @@ public class DBUnitTests {
     @Test
     @DisplayName("Good Get Game")
     public void goodGetGame() throws DataAccessException {
-        fail();
+        int gameID = gameDAO.createGame("name");
+
+        Assertions.assertEquals("name", gameDAO.getGame(gameID).gameName());
     }
 
     @Test
     @DisplayName("Bad Get Game")
     public void badGetGame() throws DataAccessException {
-        fail();
+        Assertions.assertNull(gameDAO.getGame(100));
     }
 
     @Test
     @DisplayName("Good Get All Games")
     public void goodGetAllGames() throws DataAccessException {
-        fail();
+        gameDAO.createGame("name");
+        gameDAO.createGame("name1");
+        gameDAO.createGame("name2");
+
+        Collection<String> validNames = List.of("name", "name1", "name2");
+
+        Collection<GameDataTX> allGames = gameDAO.getAllGames();
+        assertEquals(validNames.size(), allGames.size());
+
+        for (GameDataTX game : allGames) {
+            assertTrue(validNames.contains(game.gameName()));
+        }
     }
 
     @Test
     @DisplayName("Bad Get All Games")
     public void badGetAllGames() throws DataAccessException {
-        fail();
+        Collection<GameDataTX> allGames = gameDAO.getAllGames();
+
+        Assertions.assertTrue(allGames.isEmpty());
     }
 
     @Test
     @DisplayName("Good Update Game")
-    public void goodUpdateGame() throws DataAccessException {
-        fail();
+    public void goodUpdateGame() throws DataAccessException, InvalidMoveException {
+        int gameID = gameDAO.createGame("name");
+        ChessGame movePieceGame = new ChessGame();
+        movePieceGame.makeMove(new ChessMove(new ChessPosition(2,1), new ChessPosition(4, 1), null));
+        GameData updatedGame = new GameData(gameID, "whiteJoined", "blackJoined", "updatedName", movePieceGame);
+        gameDAO.updateGame(updatedGame);
+
+        Assertions.assertEquals("whiteJoined", gameDAO.getGame(gameID).whiteUsername());
+        Assertions.assertEquals("blackJoined", gameDAO.getGame(gameID).blackUsername());
+        Assertions.assertEquals("updatedName", gameDAO.getGame(gameID).gameName());
+        Assertions.assertEquals(movePieceGame, gameDAO.getGame(gameID).game());
     }
 
     @Test
@@ -157,7 +186,15 @@ public class DBUnitTests {
     @Test
     @DisplayName("Delete All Games")
     public void deleteAllGames() throws DataAccessException {
-        fail();
+        int gameID1 = gameDAO.createGame("name");
+        int gameID2 = gameDAO.createGame("name1");
+        int gameID3 = gameDAO.createGame("name2");
+
+        gameDAO.deleteAllGames();
+
+        assertNull(gameDAO.getGame(gameID1));
+        assertNull(gameDAO.getGame(gameID2));
+        assertNull(gameDAO.getGame(gameID3));
     }
 
 
