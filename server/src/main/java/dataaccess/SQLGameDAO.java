@@ -60,6 +60,10 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void updateGame(GameData gameData) throws DataAccessException {
+        if (getGame(gameData.gameID()) == null) {
+            throw new DataAccessException(String.format("No game with ID: %s", gameData.gameID()));
+        }
+
         String statement = "UPDATE games SET gameName = ?, whiteUsername = ?, blackUsername = ?, game = ? WHERE gameID = ?";
 
         utilsDB.executeUpdate(statement,

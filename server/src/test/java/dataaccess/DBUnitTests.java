@@ -6,8 +6,8 @@ import chess.ChessPosition;
 import chess.InvalidMoveException;
 import model.GameData;
 import model.GameDataTX;
+import model.UserData;
 import org.junit.jupiter.api.*;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -26,11 +26,16 @@ public class DBUnitTests {
         gameDAO = new SQLGameDAO();
     }
 
+    UserData defaultUser = new UserData("username", "password", "email@byu.edu");
+    UserData defaultUser2 = new UserData("username2", "password2", "email2@byu.edu");
+
     @BeforeEach
     public void beforeEach() throws DataAccessException {
         authDAO.deleteAllAuths();
         gameDAO.deleteAllGames();
         userDAO.deleteAllUsers();
+
+        userDAO.createUser(defaultUser);
     }
 
 
@@ -52,9 +57,7 @@ public class DBUnitTests {
     public void badCreateAuth() throws DataAccessException {
         authDAO.createAuth("token", "username");
 
-        assertThrows(DataAccessException.class, () -> {
-            authDAO.createAuth("token", "username");
-        });
+        assertThrows(DataAccessException.class, () -> authDAO.createAuth("token", "username"));
 
     }
 
@@ -83,8 +86,8 @@ public class DBUnitTests {
 
     @Test
     @DisplayName("Bad Delete Auth")
-    public void badDeleteAuth() throws DataAccessException {
-        fail();
+    public void badDeleteAuth() {
+        Assertions.assertThrows(DataAccessException.class, () -> authDAO.deleteAuth("notAToken"));
     }
 
     @Test
@@ -115,12 +118,6 @@ public class DBUnitTests {
         ChessGame startingGame = new ChessGame();
 
         Assertions.assertEquals(startingGame, gameDAO.getGame(gameID).game());
-    }
-
-    @Test
-    @DisplayName("Bad Create Game")
-    public void badCreateGame() throws DataAccessException {
-        fail();
     }
 
     @Test
@@ -179,8 +176,8 @@ public class DBUnitTests {
 
     @Test
     @DisplayName("Bad Update Game")
-    public void badUpdateGame() throws DataAccessException {
-        fail();
+    public void badUpdateGame() {
+        assertThrows(DataAccessException.class, () -> gameDAO.updateGame(new GameData(100, "white", "black", "updatedName", new ChessGame())));
     }
 
     @Test
@@ -200,34 +197,44 @@ public class DBUnitTests {
 
 
 
-    //GameDAO Tests
+
+    //UserDAO Tests
     @Test
     @DisplayName("Good Create User")
     public void goodCreateUser() throws DataAccessException {
-        fail();
+        //encryption happens in the service, does not need to be tested here
+        Assertions.assertEquals("password", userDAO.getUser("username").password());
+        Assertions.assertEquals("email@byu.edu", userDAO.getUser("username").email());
     }
 
     @Test
     @DisplayName("Bad Create User")
-    public void badCreateUser() throws DataAccessException {
-        fail();
+    public void badCreateUser() {
+        assertThrows(DataAccessException.class, () -> userDAO.createUser(defaultUser));
     }
 
     @Test
     @DisplayName("Good Get User")
     public void goodGetUser() throws DataAccessException {
-        fail();
+
+        Assertions.assertEquals("password", userDAO.getUser("username").password());
+        Assertions.assertEquals("email@byu.edu", userDAO.getUser("username").email());
     }
 
     @Test
     @DisplayName("Bad Get User")
     public void badGetUser() throws DataAccessException {
-        fail();
+        Assertions.assertNull(userDAO.getUser("username2"));
     }
 
     @Test
     @DisplayName("Delete All Users")
     public void deleteAllUsers() throws DataAccessException {
-        fail();
+        userDAO.createUser(defaultUser2);
+
+        userDAO.deleteAllUsers();
+
+        Assertions.assertNull(userDAO.getUser("username"));
+        Assertions.assertNull(userDAO.getUser("username2"));
     }
 }
