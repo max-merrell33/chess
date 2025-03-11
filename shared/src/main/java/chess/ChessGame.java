@@ -230,7 +230,9 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return isWhiteTurn == chessGame.isWhiteTurn && Objects.equals(board, chessGame.board) && Objects.equals(lastDoubleMovePosition, chessGame.lastDoubleMovePosition);
+        return isWhiteTurn == chessGame.isWhiteTurn
+                && Objects.equals(board, chessGame.board)
+                && Objects.equals(lastDoubleMovePosition, chessGame.lastDoubleMovePosition);
     }
 
     @Override
