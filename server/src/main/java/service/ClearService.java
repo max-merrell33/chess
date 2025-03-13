@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.result.ClearResult;
-import server.ResponseException;
+import exception.ResponseException;
 
 public class ClearService extends Service {
 

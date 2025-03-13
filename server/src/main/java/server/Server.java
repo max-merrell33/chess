@@ -1,6 +1,7 @@
 package server;
 
 import dataaccess.*;
+import exception.ResponseException;
 import handler.*;
 import service.ClearService;
 import service.GameService;

@@ -10,7 +10,7 @@ import model.result.LoginResult;
 import model.result.LogoutResult;
 import model.result.RegisterResult;
 import org.mindrot.jbcrypt.BCrypt;
-import server.ResponseException;
+import exception.ResponseException;
 
 import java.util.UUID;
 

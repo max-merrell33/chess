@@ -5,7 +5,7 @@ import model.GameDataTX;
 import model.request.*;
 import model.result.*;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
+import exception.ResponseException;
 
 import java.util.ArrayList;
 import java.util.Collection;

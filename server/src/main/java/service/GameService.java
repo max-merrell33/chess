@@ -12,7 +12,7 @@ import model.request.ListRequest;
 import model.result.CreateResult;
 import model.result.JoinResult;
 import model.result.ListResult;
-import server.ResponseException;
+import exception.ResponseException;
 
 public class GameService extends Service {
     // list, create, join

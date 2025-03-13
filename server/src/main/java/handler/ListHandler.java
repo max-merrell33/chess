@@ -3,7 +3,7 @@ package handler;
 import com.google.gson.GsonBuilder;
 import model.request.ListRequest;
 import model.result.ListResult;
-import server.ResponseException;
+import exception.ResponseException;
 import service.GameService;
 import spark.Request;
 import spark.Response;
