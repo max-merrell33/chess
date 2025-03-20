@@ -3,6 +3,7 @@ package client;
 import java.util.Arrays;
 
 import exception.ResponseException;
+import model.request.LoginRequest;
 import model.request.RegisterRequest;
 
 public class PreLoginClient extends UIClient {
@@ -21,7 +22,7 @@ public class PreLoginClient extends UIClient {
                 case "login" -> login(params);
                 case "quit" -> "quit";
                 case "help" -> help();
-                default -> help();
+                default -> "Invalid Input. Possible commands: " + help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();
@@ -36,10 +37,13 @@ public class PreLoginClient extends UIClient {
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
-    public String login(String... params) {
-        return "";
+    public String login(String... params) throws ResponseException {
+        if (params.length == 2) {
+            server.loginUser(new LoginRequest(params[0], params[1]));
+            return "PostLoginClient";
+        }
+        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }
-
 
     public String help() {
         return """

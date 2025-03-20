@@ -33,7 +33,7 @@ public class UserService extends Service {
             }
 
             if (userDAO.getUser(req.username) != null) {
-                throw new ResponseException(403, "already taken");
+                throw new ResponseException(403, "username already taken. Try again.");
             }
 
             userDAO.createUser(new UserData(req.username, BCrypt.hashpw(req.password, BCrypt.gensalt()), req.email));
@@ -55,7 +55,7 @@ public class UserService extends Service {
             UserData user = userDAO.getUser(req.username);
 
             if (user == null || !BCrypt.checkpw(req.password, user.password())) {
-                throw new ResponseException(401, "unauthorized");
+                throw new ResponseException(401, "incorrect username and/or password. Try again.");
             }
 
             AuthData newAuthData = authDAO.createAuth(UUID.randomUUID().toString(), req.username);

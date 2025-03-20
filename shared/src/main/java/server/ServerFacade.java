@@ -23,7 +23,7 @@ public class ServerFacade {
     }
 
     public LoginResult loginUser(LoginRequest loginRequest) throws ResponseException {
-        var path = "/user";
+        var path = "/session";
         return makeRequest("POST", path, loginRequest, LoginResult.class);
     }
 
