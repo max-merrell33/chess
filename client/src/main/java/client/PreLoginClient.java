@@ -24,7 +24,7 @@ public class PreLoginClient extends UIClient {
                 case "login" -> login(params);
                 case "quit" -> "quit";
                 case "help" -> help();
-                default -> "Invalid Input. Possible commands: " + help();
+                default -> "Invalid Input. " + help();
             };
         } catch (ResponseException ex) {
             return ex.getMessage();

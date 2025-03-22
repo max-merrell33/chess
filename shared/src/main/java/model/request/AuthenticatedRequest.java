@@ -6,4 +6,8 @@ public class AuthenticatedRequest extends Request {
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
+
+    public String getAuthToken() {
+        return authToken;
+    }
 }

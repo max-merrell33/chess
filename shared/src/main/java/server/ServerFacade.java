@@ -37,9 +37,14 @@ public class ServerFacade {
         return makeRequest("GET", path, listRequest, ListResult.class);
     }
 
+    public JoinResult joinGame(JoinRequest joinRequest) throws ResponseException {
+        var path = "/game";
+        return makeRequest("PUT", path, joinRequest, JoinResult.class);
+    }
+
     public CreateResult createGame(CreateRequest createRequest) throws ResponseException {
         var path = "/game";
-        return makeRequest("PUT", path, createRequest, CreateResult.class);
+        return makeRequest("POST", path, createRequest, CreateResult.class);
     }
 
 //    public ClearResult clear() throws ResponseException {
@@ -51,8 +56,9 @@ public class ServerFacade {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
-
+            if (request != null && !"GET".equalsIgnoreCase(method)) {
+                http.setDoOutput(true);
+            }
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
@@ -66,9 +72,11 @@ public class ServerFacade {
 
 
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
-        if (request != null) {
+        if (request instanceof AuthenticatedRequest authRequest) {
+            http.addRequestProperty("Authorization", authRequest.getAuthToken());
+        }
+        if (request != null && http.getDoOutput()) {
             http.addRequestProperty("Content-Type", "application/json");
-            http.addRequestProperty("Authorization", request.authToken());
             String reqData = new Gson().toJson(request);
             try (OutputStream reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());

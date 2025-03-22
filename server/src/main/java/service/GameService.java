@@ -38,7 +38,7 @@ public class GameService extends Service {
                 throw new ResponseException(401, "unauthorized");
             }
             if (req.gameName == null || req.gameName.isBlank()) {
-                throw new ResponseException(400, "bad request");
+                throw new ResponseException(400, "bad request, game name cannot be blank");
             }
             int newGameID = gameDAO.createGame(req.gameName);
 
