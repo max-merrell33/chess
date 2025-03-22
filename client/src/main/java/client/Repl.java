@@ -8,7 +8,7 @@ public class Repl {
     // private final EscapeSequences es;
 
     public Repl(String serverUrl) {
-        client = new PreLoginClient(serverUrl);
+        client = new PreLoginClient(serverUrl, null, null);
         this.serverUrl = serverUrl;
     }
 
@@ -24,8 +24,9 @@ public class Repl {
 
             try {
                 result = client.eval(line);
-
-                System.out.print(result);
+                if (!checkClientChange(result)) {
+                    System.out.print(result);
+                }
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -39,10 +40,18 @@ public class Repl {
         System.out.print("\n" + ">>> ");
     }
 
-    private void checkStateChange(String result) {
+    private boolean checkClientChange(String result) {
         if (result.equals("PostLoginClient")) {
-            client = new PostLoginClient(serverUrl);
+            client = new PostLoginClient(serverUrl, client.getAuthToken(), client.getUsername());
+            System.out.print("Login Successful\n\n");
+            System.out.print(client.help());
+            return true;
         }
+        if (result.equals("ChessClient")) {
+            client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername());
+            return true;
+        }
+        return false;
     }
 
 }

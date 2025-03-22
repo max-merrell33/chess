@@ -5,11 +5,13 @@ import java.util.Arrays;
 import exception.ResponseException;
 import model.request.LoginRequest;
 import model.request.RegisterRequest;
+import model.result.LoginResult;
+import model.result.RegisterResult;
 
 public class PreLoginClient extends UIClient {
 
-    public PreLoginClient(String serverUrl) {
-        super(serverUrl);
+    public PreLoginClient(String serverUrl, String authToken, String username) {
+        super(serverUrl, authToken, username);
     }
 
     public String eval(String input) {
@@ -31,7 +33,9 @@ public class PreLoginClient extends UIClient {
 
     public String register(String... params) throws ResponseException {
         if (params.length == 3) {
-            server.registerUser(new RegisterRequest(params[0], params[1], params[2]));
+            RegisterResult res = server.registerUser(new RegisterRequest(params[0], params[1], params[2]));
+            username = res.username;
+            authToken = res.authToken;
             return "PostLoginClient";
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
@@ -39,7 +43,9 @@ public class PreLoginClient extends UIClient {
 
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
-            server.loginUser(new LoginRequest(params[0], params[1]));
+            LoginResult res = server.loginUser(new LoginRequest(params[0], params[1]));
+            username = res.username;
+            authToken = res.authToken;
             return "PostLoginClient";
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
@@ -47,6 +53,7 @@ public class PreLoginClient extends UIClient {
 
     public String help() {
         return """
+                Possible commands:
                 - register <USERNAME> <PASSWORD> <EMAIL> - create an account
                 - login <USERNAME> <PASSWORD> - sign in
                 - quit - exit the app
