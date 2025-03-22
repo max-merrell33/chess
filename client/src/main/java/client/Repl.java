@@ -41,6 +41,12 @@ public class Repl {
     }
 
     private boolean checkClientChange(String result) {
+        if (result.equals("PreLoginClient")) {
+            client = new PreLoginClient(serverUrl, client.getAuthToken(), client.getUsername());
+            System.out.println("Logout Successful\n");
+            System.out.print(client.help());
+            return true;
+        }
         if (result.equals("PostLoginClient")) {
             client = new PostLoginClient(serverUrl, client.getAuthToken(), client.getUsername());
             System.out.print("Login Successful\n\n");

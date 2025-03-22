@@ -2,10 +2,7 @@ package client;
 
 import exception.ResponseException;
 import model.GameDataTX;
-import model.request.CreateRequest;
-import model.request.JoinRequest;
-import model.request.ListRequest;
-import model.request.LoginRequest;
+import model.request.*;
 import model.result.CreateResult;
 import model.result.ListResult;
 
@@ -114,9 +111,9 @@ public class PostLoginClient extends UIClient {
     }
 
     public String logout(String... params) throws ResponseException {
-        if (params.length == 2) {
-            server.loginUser(new LoginRequest(params[0], params[1]));
-            return "PostLoginClient";
+        if (params.length == 0) {
+            server.logoutUser(new LogoutRequest(authToken));
+            return "PreLoginClient";
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }

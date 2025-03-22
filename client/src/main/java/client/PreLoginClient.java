@@ -34,9 +34,7 @@ public class PreLoginClient extends UIClient {
     public String register(String... params) throws ResponseException {
         if (params.length == 3) {
             RegisterResult res = server.registerUser(new RegisterRequest(params[0], params[1], params[2]));
-            username = res.username;
-            authToken = res.authToken;
-            return "PostLoginClient";
+            return enterPostLoginClient(res.username, res.authToken);
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
@@ -44,9 +42,8 @@ public class PreLoginClient extends UIClient {
     public String login(String... params) throws ResponseException {
         if (params.length == 2) {
             LoginResult res = server.loginUser(new LoginRequest(params[0], params[1]));
-            username = res.username;
-            authToken = res.authToken;
-            return "PostLoginClient";
+            return enterPostLoginClient(res.username, res.authToken);
+
         }
         throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
     }
@@ -59,6 +56,12 @@ public class PreLoginClient extends UIClient {
                 - quit - exit the app
                 - help - display possible commands
                 """;
+    }
+
+    private String enterPostLoginClient(String username, String authToken) {
+        this.username = username;
+        this.authToken = authToken;
+        return "PostLoginClient";
     }
 
 }
