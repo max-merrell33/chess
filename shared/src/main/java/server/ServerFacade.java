@@ -42,6 +42,11 @@ public class ServerFacade {
         return makeRequest("PUT", path, joinRequest, JoinResult.class);
     }
 
+    public GetGameResult getGame(GetGameRequest getGameRequest) throws ResponseException {
+        var path = "/game/" + getGameRequest.gameID;
+        return makeRequest("GET", path, getGameRequest, GetGameResult.class);
+    }
+
     public CreateResult createGame(CreateRequest createRequest) throws ResponseException {
         var path = "/game";
         return makeRequest("POST", path, createRequest, CreateResult.class);

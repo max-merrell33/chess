@@ -3,9 +3,9 @@ package model.result;
 import model.GameData;
 
 public class GetGameResult {
-    public GameData game;
+    public GameData gameData;
 
     public GetGameResult(GameData game) {
-        this.game = game;
+        this.gameData = game;
     }
 }

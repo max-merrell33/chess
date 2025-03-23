@@ -10,8 +10,8 @@ import model.result.RegisterResult;
 
 public class PreLoginClient extends UIClient {
 
-    public PreLoginClient(String serverUrl, String authToken, String username) {
-        super(serverUrl, authToken, username);
+    public PreLoginClient(String serverUrl) {
+        super(serverUrl, null, null, 0);
     }
 
     public String eval(String input) {

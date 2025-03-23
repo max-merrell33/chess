@@ -8,12 +8,13 @@ public class Repl {
     // private final EscapeSequences es;
 
     public Repl(String serverUrl) {
-        client = new PreLoginClient(serverUrl, null, null);
+        //client = new PreLoginClient(serverUrl);
+        client = new PostLoginClient(serverUrl, "f24d8352-dfde-44e3-a025-61080d269beb", "test");
         this.serverUrl = serverUrl;
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to the chess game. Sign in to start.");
+        System.out.println("Welcome to the chess game. Sign in to start.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -41,23 +42,27 @@ public class Repl {
     }
 
     private boolean checkClientChange(String result) {
-        if (result.equals("PreLoginClient")) {
-            client = new PreLoginClient(serverUrl, client.getAuthToken(), client.getUsername());
-            System.out.println("Logout Successful\n");
-            System.out.print(client.help());
-            return true;
+        switch (result) {
+            case "PreLoginClient" -> {
+                client = new PreLoginClient(serverUrl);
+                System.out.println("Logout Successful\n");
+                System.out.print(client.help());
+                return true;
+            }
+            case "PostLoginClient" -> {
+                client = new PostLoginClient(serverUrl, client.getAuthToken(), client.getUsername());
+                System.out.print("Login Successful\n\n");
+                System.out.print(client.help());
+                return true;
+            }
+            case "ChessClient" -> {
+                client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(), client.getGameID());
+                return true;
+            }
+            default -> {
+                return false;
+            }
         }
-        if (result.equals("PostLoginClient")) {
-            client = new PostLoginClient(serverUrl, client.getAuthToken(), client.getUsername());
-            System.out.print("Login Successful\n\n");
-            System.out.print(client.help());
-            return true;
-        }
-        if (result.equals("ChessClient")) {
-            client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername());
-            return true;
-        }
-        return false;
     }
 
 }

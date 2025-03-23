@@ -9,10 +9,8 @@ import model.result.ListResult;
 import java.util.Arrays;
 
 public class PostLoginClient extends UIClient {
-    private int gameID;
-
     public PostLoginClient(String serverUrl, String authToken, String username) {
-        super(serverUrl, authToken, username);
+        super(serverUrl, authToken, username, 0);
     }
 
     public String eval(String input) {
@@ -38,9 +36,7 @@ public class PostLoginClient extends UIClient {
     public String create(String... params) throws ResponseException {
         if (params.length == 1) {
             CreateResult res = server.createGame(new CreateRequest(authToken, params[0]));
-            gameID = res.gameID;
-            //return "ChessClient";
-            return "Game Created";
+            return enterChessClient(res.gameID);
         }
         throw new ResponseException(400, "Expected: <NAME>");
     }
@@ -95,19 +91,17 @@ public class PostLoginClient extends UIClient {
 
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
-            server.joinGame(new JoinRequest(authToken, params[1], Integer.parseInt(params[0])));
-            //return "ChessClient";
-            return "Game Joined";
+            server.joinGame(new JoinRequest(authToken, params[1].toUpperCase(), Integer.parseInt(params[0])));
+            return enterChessClient(Integer.parseInt(params[0]));
         }
         throw new ResponseException(400, "Expected: <GAMEID> [WHITE|BLACK]");
     }
 
     public String observe(String... params) throws ResponseException {
-        if (params.length == 2) {
-            server.loginUser(new LoginRequest(params[0], params[1]));
-            return "PostLoginClient";
+        if (params.length == 1) {
+            return enterChessClient(Integer.parseInt(params[0]));
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException(400, "Expected: <GAMEID>");
     }
 
     public String logout(String... params) throws ResponseException {
@@ -115,7 +109,7 @@ public class PostLoginClient extends UIClient {
             server.logoutUser(new LogoutRequest(authToken));
             return "PreLoginClient";
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException(400, "Unexpected characters after command");
     }
 
     public String help() {
@@ -131,7 +125,9 @@ public class PostLoginClient extends UIClient {
                 """;
     }
 
-    public int getGameID() {
-        return gameID;
+    private String enterChessClient(int gameID) {
+        this.gameID = gameID;
+        return "ChessClient";
     }
+
 }
