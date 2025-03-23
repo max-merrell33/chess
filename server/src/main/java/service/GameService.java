@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameDAO;
@@ -7,9 +8,11 @@ import dataaccess.UserDAO;
 import model.AuthData;
 import model.GameData;
 import model.request.CreateRequest;
+import model.request.GetGameRequest;
 import model.request.JoinRequest;
 import model.request.ListRequest;
 import model.result.CreateResult;
+import model.result.GetGameResult;
 import model.result.JoinResult;
 import model.result.ListResult;
 import exception.ResponseException;
@@ -43,6 +46,22 @@ public class GameService extends Service {
             int newGameID = gameDAO.createGame(req.gameName);
 
             return new CreateResult(newGameID);
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public GetGameResult getGame(GetGameRequest req) throws ResponseException {
+        try {
+            if (authDAO.getAuth(req.authToken) == null) {
+                throw new ResponseException(401, "unauthorized");
+            }
+            if (req.gameID == 0) {
+                throw new ResponseException(400, "bad request, game ID cannot be blank");
+            }
+            GameData game = gameDAO.getGame(req.gameID);
+
+            return new GetGameResult(game);
         } catch (DataAccessException e) {
             throw new ResponseException(500, e.getMessage());
         }

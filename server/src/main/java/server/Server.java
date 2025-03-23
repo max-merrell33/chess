@@ -47,6 +47,7 @@ public class Server {
         Spark.delete("/session", (req, res) -> LogoutHandler.logoutHandler(req, res, userService));
 
         Spark.get("/game",(req, res) -> ListHandler.listHandler(req, res, gameService));
+        Spark.get("/game/:gameID",(req, res) -> GetGameHandler.getGameHandler(req, res, gameService));
         Spark.post("/game",(req, res) -> CreateHandler.createHandler(req, res, gameService));
         Spark.put("/game",(req, res) -> JoinHandler.joinHandler(req, res, gameService));
 
