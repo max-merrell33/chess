@@ -8,13 +8,15 @@ public abstract class UIClient {
     protected String authToken;
     protected String username;
     protected int gameID;
+    protected boolean playerIsWhite;
 
-    public UIClient(String serverUrl, String authToken, String username, int gameID) {
+    public UIClient(String serverUrl, String authToken, String username, int gameID, boolean playerIsWhite) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         this.authToken = authToken;
         this.username = username;
         this.gameID = gameID;
+        this.playerIsWhite = playerIsWhite;
     }
 
     public String getAuthToken() {
@@ -23,6 +25,10 @@ public abstract class UIClient {
 
     public String getUsername() {
         return username;
+    }
+
+    public boolean playerIsWhite() {
+        return playerIsWhite;
     }
 
     public int getGameID() {

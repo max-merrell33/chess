@@ -3,14 +3,15 @@ package client;
 import exception.ResponseException;
 import model.GameDataTX;
 import model.request.*;
-import model.result.CreateResult;
 import model.result.ListResult;
 
 import java.util.Arrays;
 
 public class PostLoginClient extends UIClient {
+    //TODO add a map so that the list table does not list the game IDs but a separate numbering system
+
     public PostLoginClient(String serverUrl, String authToken, String username) {
-        super(serverUrl, authToken, username, 0);
+        super(serverUrl, authToken, username, 0, true);
     }
 
     public String eval(String input) {
@@ -35,8 +36,8 @@ public class PostLoginClient extends UIClient {
 
     public String create(String... params) throws ResponseException {
         if (params.length == 1) {
-            CreateResult res = server.createGame(new CreateRequest(authToken, params[0]));
-            return enterChessClient(res.gameID);
+            server.createGame(new CreateRequest(authToken, params[0]));
+            return "Game Created Successfully";
         }
         throw new ResponseException(400, "Expected: <NAME>");
     }
@@ -91,15 +92,16 @@ public class PostLoginClient extends UIClient {
 
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
-            server.joinGame(new JoinRequest(authToken, params[1].toUpperCase(), Integer.parseInt(params[0])));
-            return enterChessClient(Integer.parseInt(params[0]));
+            String playerColor = params[1].toUpperCase();
+            server.joinGame(new JoinRequest(authToken, playerColor, Integer.parseInt(params[0])));
+            return enterChessClient(Integer.parseInt(params[0]), playerColor.equals("WHITE"));
         }
         throw new ResponseException(400, "Expected: <GAMEID> [WHITE|BLACK]");
     }
 
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
-            return enterChessClient(Integer.parseInt(params[0]));
+            return enterChessClient(Integer.parseInt(params[0]), true);
         }
         throw new ResponseException(400, "Expected: <GAMEID>");
     }
@@ -125,8 +127,9 @@ public class PostLoginClient extends UIClient {
                 """;
     }
 
-    private String enterChessClient(int gameID) {
+    private String enterChessClient(int gameID, boolean isWhite) {
         this.gameID = gameID;
+        this.playerIsWhite = isWhite;
         return "ChessClient";
     }
 
