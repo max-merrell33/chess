@@ -36,10 +36,10 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("Good Register")
     public void goodRegister() throws ResponseException {
-        facade.registerUser(new RegisterRequest("username", "password", "email@email.com"));
+        facade.registerUser(new RegisterRequest("username1", "password", "email@email.com"));
 
-        LoginResult res = facade.loginUser(new LoginRequest("username", "password"));
-        Assertions.assertEquals("username", res.username);
+        LoginResult res = facade.loginUser(new LoginRequest("username1", "password"));
+        Assertions.assertEquals("username1", res.username);
     }
 
     @Test
@@ -148,11 +148,11 @@ public class ServerFacadeTests {
     public void goodGetGame() throws ResponseException {
         RegisterResult res = facade.registerUser(new RegisterRequest("username", "password", "email@email.com"));
 
-        CreateResult createRes = facade.createGame(new CreateRequest(res.authToken, "game1"));
+        CreateResult createRes = facade.createGame(new CreateRequest(res.authToken, "gameName"));
 
         GetGameResult gameRes = facade.getGame(new GetGameRequest(res.authToken, createRes.gameID));
 
-        Assertions.assertEquals("game1", gameRes.gameData.gameName());
+        Assertions.assertEquals("gameName", gameRes.gameData.gameName());
     }
 
     @Test
@@ -167,7 +167,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("Good Create")
     public void goodCreate() throws ResponseException {
-        RegisterResult res = facade.registerUser(new RegisterRequest("username", "password", "email@email.com"));
+        RegisterResult res = facade.registerUser(new RegisterRequest("username1", "password", "email@email.com"));
 
         CreateResult createRes = facade.createGame(new CreateRequest(res.authToken, "game1"));
 
