@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class Repl {
     private UIClient client;
-    private String serverUrl;
+    private final String serverUrl;
     private State state;
 
     public Repl(String serverUrl) {

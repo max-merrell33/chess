@@ -6,12 +6,15 @@ import model.request.*;
 import model.result.ListResult;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostLoginClient extends UIClient {
-    //TODO add a map so that the list table does not list the game IDs but a separate numbering system
+    private final Map<Integer, Integer> gameNumToGameID = new HashMap<>();
 
     public PostLoginClient(String serverUrl, String authToken, String username) {
         super(serverUrl, authToken, username, 0, true);
+
     }
 
     public String eval(String input) {
@@ -39,7 +42,7 @@ public class PostLoginClient extends UIClient {
             server.createGame(new CreateRequest(authToken, params[0]));
             return "Game Created Successfully";
         }
-        throw new ResponseException(400, "Expected: <NAME>");
+        throw new ResponseException(0, "Expected: <NAME>");
     }
 
     public String list(String... params) throws ResponseException {
@@ -47,22 +50,25 @@ public class PostLoginClient extends UIClient {
             ListResult res = server.listGames(new ListRequest(authToken));
             return printListGamesTable(res);
         }
-        throw new ResponseException(400, "Unexpected characters after command");
+        throw new ResponseException(0, "Unexpected characters after command");
     }
 
     private String printListGamesTable(ListResult res) {
         StringBuilder returnString = new StringBuilder();
 
-        int idWidth = "ID".length();
+        int idWidth = "Game #".length();
         int nameWidth = "Name".length();
         int whiteWidth = "White".length();
         int blackWidth = "Black".length();
 
+        int gameNum = 1;
         for (GameDataTX game : res.games) {
-            idWidth = Math.max(idWidth, String.valueOf(game.gameID()).length());
+            gameNumToGameID.put(gameNum, game.gameID());
+            idWidth = Math.max(idWidth, String.valueOf(gameNum).length());
             nameWidth = Math.max(nameWidth, game.gameName() != null ? game.gameName().length() : 1);
             whiteWidth = Math.max(whiteWidth, game.whiteUsername() != null ? game.whiteUsername().length() : 1);
             blackWidth = Math.max(blackWidth, game.blackUsername() != null ? game.blackUsername().length() : 1);
+            gameNum++;
         }
 
         int padding = 4;
@@ -72,38 +78,51 @@ public class PostLoginClient extends UIClient {
         blackWidth += padding;
 
         String format = "%-" + idWidth + "s%-" + nameWidth + "s%-" + whiteWidth + "s%-" + blackWidth + "s%n";
-        returnString.append(String.format(format, "ID", "Name", "White", "Black"));
+        returnString.append(String.format(format, "Game #", "Name", "White", "Black"));
 
         int totalWidth = idWidth + nameWidth + whiteWidth + blackWidth;
         returnString.append("-".repeat(totalWidth)).append("\n");
 
+        gameNum = 1;
         for (GameDataTX game : res.games) {
             returnString.append(String.format(
                     format,
-                    game.gameID(),
+                    gameNum,
                     game.gameName() != null ? game.gameName() : "-",
                     game.whiteUsername() != null ? game.whiteUsername() : "-",
                     game.blackUsername() != null ? game.blackUsername() : "-"
             ));
+            gameNum++;
         }
-
+        System.out.println(gameNumToGameID);
         return returnString.toString();
     }
 
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
+            int gameNum = 0;
+            try {
+                gameNum = Integer.parseInt(params[0]);
+            } catch (NumberFormatException ex) {
+                throw new ResponseException(0, "Expected: <GAME #>");
+            }
+            if (!gameNumToGameID.containsKey(gameNum)) {
+                throw new ResponseException(0, "Invalid game number");
+            }
+            int gameID = gameNumToGameID.get(gameNum);
+
             String playerColor = params[1].toUpperCase();
-            server.joinGame(new JoinRequest(authToken, playerColor, Integer.parseInt(params[0])));
-            return enterChessClient(Integer.parseInt(params[0]), playerColor.equals("WHITE"));
+            server.joinGame(new JoinRequest(authToken, playerColor, gameID));
+            return enterChessClient(gameID, playerColor.equals("WHITE"));
         }
-        throw new ResponseException(400, "Expected: <GAMEID> [WHITE|BLACK]");
+        throw new ResponseException(0, "Expected: <GAME #> [WHITE|BLACK]");
     }
 
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
-            return enterChessClient(Integer.parseInt(params[0]), true);
+            return enterChessClient(getGameIDFromGameNum(params[0]), true);
         }
-        throw new ResponseException(400, "Expected: <GAMEID>");
+        throw new ResponseException(0, "Expected: <GAME #>");
     }
 
     public String logout(String... params) throws ResponseException {
@@ -111,7 +130,7 @@ public class PostLoginClient extends UIClient {
             server.logoutUser(new LogoutRequest(authToken));
             return "PreLoginClient";
         }
-        throw new ResponseException(400, "Unexpected characters after command");
+        throw new ResponseException(0, "Unexpected characters after command");
     }
 
     public String help() {
@@ -119,8 +138,8 @@ public class PostLoginClient extends UIClient {
                 Possible commands:
                 - create <NAME> - create a game with a given name
                 - list - list all the available games
-                - join <GAMEID> [WHITE|BLACK] - join a game
-                - observe <GAMEID> - observe a game
+                - join <GAME #> [WHITE|BLACK] - join a game
+                - observe <GAME #> - observe a game
                 - logout - logout and go to main menu
                 - quit - exit the app
                 - help - display possible commands
@@ -131,6 +150,20 @@ public class PostLoginClient extends UIClient {
         this.gameID = gameID;
         this.playerIsWhite = isWhite;
         return "ChessClient";
+    }
+
+    private int getGameIDFromGameNum(String gameNum) throws ResponseException {
+        int gameNumInt;
+        try {
+            gameNumInt = Integer.parseInt(gameNum);
+        } catch (NumberFormatException ex) {
+            throw new ResponseException(0, "Invalid game number");
+        }
+        if (!gameNumToGameID.containsKey(gameNumInt)) {
+            throw new ResponseException(0, "No game with number " + gameNum + " exists");
+        }
+
+        return gameNumToGameID.get(gameNumInt);
     }
 
 }

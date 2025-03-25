@@ -36,7 +36,7 @@ public class PreLoginClient extends UIClient {
             RegisterResult res = server.registerUser(new RegisterRequest(params[0], params[1], params[2]));
             return enterPostLoginClient(res.username, res.authToken);
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
+        throw new ResponseException(0, "Expected: <USERNAME> <PASSWORD> <EMAIL>");
     }
 
     public String login(String... params) throws ResponseException {
@@ -45,7 +45,7 @@ public class PreLoginClient extends UIClient {
             return enterPostLoginClient(res.username, res.authToken);
 
         }
-        throw new ResponseException(400, "Expected: <USERNAME> <PASSWORD>");
+        throw new ResponseException(0, "Expected: <USERNAME> <PASSWORD>");
     }
 
     public String help() {

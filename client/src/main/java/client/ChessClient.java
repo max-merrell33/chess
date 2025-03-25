@@ -44,7 +44,7 @@ public class ChessClient extends UIClient {
         output.append(EscapeSequences.ERASE_SCREEN);  // Clear screen before drawing
         output.append(EscapeSequences.SET_TEXT_BOLD);
 
-        boolean whiteSquare = false;
+        boolean whiteSquare;
 
         String cols = playerIsWhite ? "    a  b  c  d  e  f  g  h    " : "    h  g  f  e  d  c  b  a    ";
         output.append(EscapeSequences.SET_BG_COLOR_BLACK).append(cols);
