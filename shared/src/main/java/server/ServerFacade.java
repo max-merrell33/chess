@@ -52,9 +52,10 @@ public class ServerFacade {
         return makeRequest("POST", path, createRequest, CreateResult.class);
     }
 
-//    public ClearResult clear() throws ResponseException {
-//        var path = "/db";
-//    }
+    public ClearResult clear() throws ResponseException {
+        var path = "/db";
+        return makeRequest("DELETE", path, null, ClearResult.class);
+    }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {

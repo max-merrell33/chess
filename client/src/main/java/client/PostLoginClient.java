@@ -100,7 +100,7 @@ public class PostLoginClient extends UIClient {
 
     public String join(String... params) throws ResponseException {
         if (params.length == 2) {
-            int gameNum = 0;
+            int gameNum;
             try {
                 gameNum = Integer.parseInt(params[0]);
             } catch (NumberFormatException ex) {
