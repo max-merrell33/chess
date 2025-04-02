@@ -12,9 +12,14 @@ import java.util.Map;
 public class PostLoginClient extends UIClient {
     private final Map<Integer, Integer> gameNumToGameID = new HashMap<>();
 
-    public PostLoginClient(String serverUrl, String authToken, String username) {
+    public PostLoginClient(String serverUrl, String authToken, String username) throws ResponseException{
         super(serverUrl, authToken, username, 0, true);
-
+        ListResult res = server.listGames(new ListRequest(authToken));
+        int gameNum = 1;
+        for (GameDataTX game : res.games) {
+            gameNumToGameID.put(gameNum, game.gameID());
+            gameNum++;
+        }
     }
 
     public String eval(String input) {
@@ -94,7 +99,6 @@ public class PostLoginClient extends UIClient {
             ));
             gameNum++;
         }
-        System.out.println(gameNumToGameID);
         return returnString.toString();
     }
 

@@ -44,7 +44,7 @@ public class ChessClient extends UIClient {
         output.append(EscapeSequences.ERASE_SCREEN);  // Clear screen before drawing
         output.append(EscapeSequences.SET_TEXT_BOLD);
 
-        boolean whiteSquare;
+        boolean whiteSquare = true;
 
         String cols = playerIsWhite ? "    a  b  c  d  e  f  g  h    " : "    h  g  f  e  d  c  b  a    ";
         output.append(EscapeSequences.SET_BG_COLOR_BLACK).append(cols);
@@ -56,7 +56,6 @@ public class ChessClient extends UIClient {
 
         for (int i = startRow; i != endRow; i += stepRow) {
             String row = rows[i];
-            whiteSquare = (i % 2 == 0);
 
             output.append(EscapeSequences.SET_BG_COLOR_BLACK).append(" ").append(i+1).append(" ");
 
@@ -91,6 +90,7 @@ public class ChessClient extends UIClient {
             output.append(EscapeSequences.SET_BG_COLOR_BLACK);
             output.append(" ").append(i+1).append(" ");
             output.append(EscapeSequences.RESET_BG_COLOR).append("\n");
+            whiteSquare = !whiteSquare;
         }
 
         output.append(EscapeSequences.SET_BG_COLOR_BLACK).append(cols);

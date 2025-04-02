@@ -1,5 +1,6 @@
 package client;
 
+import exception.ResponseException;
 import ui.EscapeSequences;
 
 import java.util.Scanner;
@@ -31,8 +32,8 @@ public class Repl {
                 if (!checkClientChange(result)) {
                     System.out.print(result);
                 }
-            } catch (Throwable e) {
-                var msg = e.toString();
+            } catch (ResponseException e) {
+                var msg = e.getMessage();
                 System.out.print(msg);
             }
         }
@@ -44,7 +45,7 @@ public class Repl {
         System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY + "[" + state + "]" + EscapeSequences.RESET_TEXT_COLOR + " >>> ");
     }
 
-    private boolean checkClientChange(String result) {
+    private boolean checkClientChange(String result) throws ResponseException {
         switch (result) {
             case "PreLoginClient" -> {
                 client = new PreLoginClient(serverUrl);
