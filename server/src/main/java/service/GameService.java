@@ -6,14 +6,8 @@ import dataaccess.GameDAO;
 import dataaccess.UserDAO;
 import model.AuthData;
 import model.GameData;
-import model.request.CreateRequest;
-import model.request.GetGameRequest;
-import model.request.JoinRequest;
-import model.request.ListRequest;
-import model.result.CreateResult;
-import model.result.GetGameResult;
-import model.result.JoinResult;
-import model.result.ListResult;
+import model.request.*;
+import model.result.*;
 import exception.ResponseException;
 
 public class GameService extends Service {
@@ -61,6 +55,24 @@ public class GameService extends Service {
             GameData game = gameDAO.getGame(req.gameID);
 
             return new GetGameResult(game);
+        } catch (DataAccessException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public UpdateGameResult updateGame(UpdateGameRequest req) throws ResponseException {
+        try {
+            if (authDAO.getAuth(req.authToken) == null) {
+                throw new ResponseException(401, "unauthorized");
+            }
+            if (req.gameData.gameID() == 0) {
+                throw new ResponseException(400, "bad request");
+            }
+            GameData game = gameDAO.getGame(req.gameData.gameID());
+
+            gameDAO.updateGame(new GameData(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName(), req.gameData.game()));
+
+            return new UpdateGameResult();
         } catch (DataAccessException e) {
             throw new ResponseException(500, e.getMessage());
         }
