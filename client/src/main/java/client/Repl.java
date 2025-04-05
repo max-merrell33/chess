@@ -11,8 +11,8 @@ public class Repl {
     private State state;
 
     public Repl(String serverUrl) {
-        client = new PreLoginClient(serverUrl);
-        //client = new ChessClient(serverUrl, "f24d8352-dfde-44e3-a025-61080d269beb", "test", 3, false);
+        //client = new PreLoginClient(serverUrl);
+        client = new ChessClient(serverUrl, "22b948ad-1069-4a73-9c60-afc09b0ad34d", "test", 3, true);
         this.serverUrl = serverUrl;
         state = State.LOGGED_OUT;
     }

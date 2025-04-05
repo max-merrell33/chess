@@ -143,7 +143,6 @@ public class ChessGame {
         board.makeMove(move);
         setTeamTurn(pieceColor == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE);
 
-        System.out.println(board);
     }
 
     /**
