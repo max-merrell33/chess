@@ -1,9 +1,6 @@
 package client;
 
-import chess.ChessBoard;
-import chess.ChessMove;
-import chess.ChessPosition;
-import chess.InvalidMoveException;
+import chess.*;
 import exception.ResponseException;
 import model.GameData;
 import model.request.GetGameRequest;
@@ -11,7 +8,10 @@ import model.request.UpdateGameRequest;
 import model.result.GetGameResult;
 import ui.EscapeSequences;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Scanner;
 
 public class ChessClient extends UIClient {
     public ChessClient(String serverUrl, String authToken, String username, int gameID, boolean playerIsWhite) {
@@ -27,8 +27,8 @@ public class ChessClient extends UIClient {
                 case "redraw" -> print(params);
                 case "move" -> move(params);
                 case "leave" -> leave(params);
-                case "resign" -> resign(params);
-                case "highlight" -> highlight(params);
+                case "resign" -> resign(params); //TODO
+                case "highlight", "hl" -> highlight(params); //TODO
                 case "help" -> help();
                 default -> "Invalid Input. " + help();
             };
@@ -40,12 +40,18 @@ public class ChessClient extends UIClient {
     public String print(String... params) throws ResponseException {
         if (params.length == 0) {
             GetGameResult res = server.getGame(new GetGameRequest(authToken, gameID));
-            return printBoard(res.gameData.game().getBoard(), playerIsWhite);
+            return printBoard(res.gameData.game().getBoard(), playerIsWhite, new ArrayList<>());
         }
         throw new ResponseException(400, "Unexpected characters after command");
     }
 
-    public String printBoard(ChessBoard board, boolean playerIsWhite) {
+    public String printBoard(ChessBoard board, boolean playerIsWhite, Collection<ChessMove> possibleMoves) {
+        ArrayList<int[]> movesList = new ArrayList<>();
+        for (ChessMove move : possibleMoves) {
+            movesList.add(new int[]{move.getStartPosition().getRow(), move.getStartPosition().getColumn()});
+            movesList.add(new int[]{move.getEndPosition().getRow(), move.getEndPosition().getColumn()});
+        }
+
         String[] rows = board.toString().split("\n");
         StringBuilder output = new StringBuilder();
 
@@ -53,6 +59,7 @@ public class ChessClient extends UIClient {
         output.append(EscapeSequences.SET_TEXT_BOLD);
 
         boolean whiteSquare = true;
+        boolean highlightedSquare = false;
 
         String cols = playerIsWhite ? "    a  b  c  d  e  f  g  h    " : "    h  g  f  e  d  c  b  a    ";
         output.append(EscapeSequences.SET_BG_COLOR_BLACK).append(cols);
@@ -74,7 +81,20 @@ public class ChessClient extends UIClient {
             for (int j = startCol; j != endCol; j += stepCol) {
                 char piece = row.charAt(j);
 
-                String bgColor = whiteSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
+                int[] intPos = {8-i, 1+j};
+                for (int[] move : movesList) {
+                    if (move[0] == intPos[0] && move[1] == intPos[1]) {
+                        highlightedSquare = true;
+                        break;
+                    }
+                }
+
+                String bgColor;
+                if (highlightedSquare) {
+                    bgColor = whiteSquare ? EscapeSequences.SET_BG_COLOR_GREEN : EscapeSequences.SET_BG_COLOR_DARK_GREEN;
+                } else {
+                    bgColor = whiteSquare ? EscapeSequences.SET_BG_COLOR_LIGHT_GREY : EscapeSequences.SET_BG_COLOR_DARK_GREY;
+                }
                 whiteSquare = !whiteSquare;
 
                 String pieceSymbol = switch (piece) {
@@ -94,6 +114,7 @@ public class ChessClient extends UIClient {
                 };
 
                 output.append(bgColor).append(pieceSymbol);
+                highlightedSquare = false;
             }
             output.append(EscapeSequences.SET_BG_COLOR_BLACK);
             output.append(" ").append(8-i).append(" ");
@@ -113,6 +134,12 @@ public class ChessClient extends UIClient {
         if (params.length == 1) {
             GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
             GameData gameData = gameRes.gameData;
+
+            ChessGame.TeamColor userColor = playerIsWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            if (gameData.game().getTeamTurn() != userColor) {
+                throw new ResponseException(400, "Not your turn");
+            }
+
             try {
                 gameData.game().makeMove(createMove(params[0]));
             } catch (InvalidMoveException ex) {
@@ -140,19 +167,39 @@ public class ChessClient extends UIClient {
         int col = stringPosition.charAt(0) - 'a' + 1;
         int row = Character.getNumericValue(stringPosition.charAt(1));
 
+        if (col < 0 || row < 0 || col > 8 || row > 8) {
+            throw new ResponseException(400, "Invalid, out of bounds.");
+        }
+
         return new ChessPosition(row, col);
     }
 
     public String leave(String... params) throws ResponseException {
-        return "PostLoginClient";
+        if (params.length == 0) {
+            return "PostLoginClient";
+        }
+        throw new ResponseException(400, "Unexpected characters after command");
     }
 
     public String resign(String... params) throws ResponseException {
-        return "PostLoginClient";
+        if (params.length == 0) {
+            System.out.println("Are you sure you want to resign? (y/n): ");
+            String input = new Scanner(System.in).nextLine();
+            if (input.equals("y")) {
+                return "You Resigned";
+            }
+            return "";
+        }
+        throw new ResponseException(400, "Unexpected characters after command");
     }
 
     public String highlight(String... params) throws ResponseException {
-        return "PostLoginClient";
+        if (params.length == 1) {
+            GetGameResult res = server.getGame(new GetGameRequest(authToken, gameID));
+            Collection<ChessMove> highlightedMoves = res.gameData.game().validMoves(createPosition(params[0]));
+            return printBoard(res.gameData.game().getBoard(), playerIsWhite, highlightedMoves);
+        }
+        throw new ResponseException(400, "Expected: <POSITION> (ex. e2)");
     }
 
 
