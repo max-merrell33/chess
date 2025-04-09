@@ -1,6 +1,7 @@
 package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.IOException;
@@ -20,6 +21,22 @@ public class ConnectionManager {
         for (var gameMap : connections.values()) {
             gameMap.remove(authToken);
         }
+    }
+
+    public void respond(String authToken, int gameID, ServerMessage serverMessage, Session session) throws IOException {
+        boolean valid = false;
+        if (connections.get(gameID) != null) {
+            if (connections.get(gameID).get(authToken) != null) {
+                connections.get(gameID).get(authToken).send(serverMessage.toString());
+                valid = true;
+            }
+        }
+
+        if (!valid) {
+            ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+            new Connection(authToken, session).send(errorMessage.toString());
+        }
+
     }
 
     public void broadcast(String excludeAuthToken, int gameID, ServerMessage serverMessage) throws IOException {
