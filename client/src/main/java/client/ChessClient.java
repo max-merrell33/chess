@@ -158,7 +158,7 @@ public class ChessClient extends UIClient {
                 throw new ResponseException(400, "Invalid move.");
             }
             server.updateGame(new UpdateGameRequest(authToken,gameData));
-            ws.makeMove(authToken, username, gameID, createMove(params[0]), params[0]);
+            ws.makeMove(authToken, username, gameID, createMove(params[0]), params[0], playerIsObserver, playerIsWhite);
             return printBoard(gameData.game().getBoard(), playerIsWhite, Collections.singletonList(createMove(params[0])));        }
         throw new ResponseException(400, "Expected: <MOVE> (ex. e2e4)");
     }

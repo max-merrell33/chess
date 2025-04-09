@@ -1,6 +1,8 @@
 
 package server.websocket;
 
+import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.*;
 import dataaccess.*;
 import exception.ResponseException;
@@ -8,7 +10,6 @@ import model.request.GetGameRequest;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import server.Server;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
@@ -120,6 +121,23 @@ public class WebSocketHandler {
     private void makeMove(MoveCommand c) throws IOException {
         var message = String.format("%s made the move %s.", c.getUsername(), c.getMoveString());
 
+        if (c.isObserver()) {
+            connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: observer cannot make moves"), session);
+            return;
+        }
+
+        ChessGame.TeamColor teamColor = c.isWhite() ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        try {
+            ChessGame game = gameService.getGame(new GetGameRequest(c.getAuthToken(), c.getGameID())).gameData.game();
+            if (game.getTeamTurn() != teamColor) {
+                connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: not your turn"), session);
+                return;
+            }
+            game.makeMove(c.getMove());
+        } catch (InvalidMoveException | ResponseException e) {
+            connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: invalid move"), session);
+            return;
+        }
         var loadGameMessage = new LoadGameMessage("gameData");
         connections.respond(c.getAuthToken(), c.getGameID(), loadGameMessage, session);
         connections.broadcast(c.getAuthToken(), c.getGameID(), loadGameMessage);
