@@ -22,7 +22,6 @@ public class Server {
     private WebSocketHandler webSocketHandler;
 
     private void init() {
-        webSocketHandler = new WebSocketHandler();
         try {
             userDAO = new SQLUserDAO();
             authDAO = new SQLAuthDAO();
@@ -35,6 +34,8 @@ public class Server {
             System.err.println("Failed to initialize DAOs: " + e.getMessage());
             throw new RuntimeException("Server failed to initialize due to database error.", e);
         }
+
+        webSocketHandler = new WebSocketHandler();
 
     }
 

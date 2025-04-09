@@ -15,10 +15,10 @@ import java.util.Collection;
 import java.util.Scanner;
 
 public class ChessClient extends UIClient {
-    private WebSocketFacade ws;
+    private final WebSocketFacade ws;
 
-    public ChessClient(String serverUrl, String authToken, String username, int gameID, boolean playerIsWhite, WebSocketFacade ws) {
-        super(serverUrl, authToken, username, gameID, playerIsWhite);
+    public ChessClient(String serverUrl, String authToken, String username, int gameID, boolean playerIsWhite, boolean playerIsObserver, WebSocketFacade ws) {
+        super(serverUrl, authToken, username, gameID, playerIsWhite, playerIsObserver);
         this.ws = ws;
     }
 
@@ -180,6 +180,7 @@ public class ChessClient extends UIClient {
 
     public String leave(String... params) throws ResponseException {
         if (params.length == 0) {
+            ws.leaveGame(authToken, username, gameID, playerIsObserver);
             return "PostLoginClient";
         }
         throw new ResponseException(400, "Unexpected characters after command");

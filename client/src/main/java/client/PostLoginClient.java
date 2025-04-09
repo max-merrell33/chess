@@ -13,7 +13,7 @@ public class PostLoginClient extends UIClient {
     private final Map<Integer, Integer> gameNumToGameID = new HashMap<>();
 
     public PostLoginClient(String serverUrl, String authToken, String username) throws ResponseException{
-        super(serverUrl, authToken, username, 0, true);
+        super(serverUrl, authToken, username, 0, true, false);
         ListResult res = server.listGames(new ListRequest(authToken));
         int gameNum = 1;
         for (GameDataTX game : res.games) {
@@ -117,14 +117,14 @@ public class PostLoginClient extends UIClient {
 
             String playerColor = params[1].toUpperCase();
             server.joinGame(new JoinRequest(authToken, playerColor, gameID));
-            return enterChessClient(gameID, playerColor.equals("WHITE"));
+            return enterChessClient(gameID, playerColor.equals("WHITE"), false);
         }
         throw new ResponseException(0, "Expected: <GAME #> [WHITE|BLACK]");
     }
 
     public String observe(String... params) throws ResponseException {
         if (params.length == 1) {
-            return enterChessClient(getGameIDFromGameNum(params[0]), true);
+            return enterChessClient(getGameIDFromGameNum(params[0]), true, true);
         }
         throw new ResponseException(0, "Expected: <GAME #>");
     }
@@ -150,9 +150,10 @@ public class PostLoginClient extends UIClient {
                 """;
     }
 
-    private String enterChessClient(int gameID, boolean isWhite) {
+    private String enterChessClient(int gameID, boolean isWhite, boolean isObserver) {
         this.gameID = gameID;
         this.playerIsWhite = isWhite;
+        this.playerIsObserver = isObserver;
         return "ChessClient";
     }
 

@@ -50,7 +50,7 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(NotificationMessage message) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message.getMessage());
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + message.getMessage());
         printPrompt();
     }
 
@@ -72,8 +72,8 @@ public class Repl implements NotificationHandler {
             }
             case "ChessClient" -> {
                 WebSocketFacade ws = new WebSocketFacade(serverUrl, this);
-                client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsWhite(), ws);
-                ws.joinGame(client.getAuthToken(), client.getGameID());
+                client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsWhite(), client.playerIsObserver(), ws);
+                ws.joinGame(client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsObserver(), client.playerIsWhite());
                 state = State.CHESS_GAME;
                 System.out.print(client.eval("redraw"));
                 return true;

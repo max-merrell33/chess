@@ -3,6 +3,8 @@ package client.websocket;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -26,12 +28,11 @@ public class WebSocketFacade extends Endpoint {
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, socketURI);
-            System.out.println("Connected to " + socketURI);
+
             //set message handler
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    System.out.println("Inside onMessage");
                     NotificationMessage notificationMessage = new Gson().fromJson(message, NotificationMessage.class);
                     notificationHandler.notify(notificationMessage);
                 }
@@ -46,23 +47,23 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void joinGame(String authToken, int gameID) throws ResponseException {
+    public void joinGame(String authToken, String username, int gameID, boolean isObserver, boolean isWhite) throws ResponseException {
         try {
-            var action = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            var action = new ConnectCommand(authToken, gameID, username, isObserver, isWhite);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-//    public void leavePetShop(String visitorName) throws ResponseException {
-//        try {
-//            var action = new Action(Action.Type.EXIT, visitorName);
-//            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-//            this.session.close();
-//        } catch (IOException ex) {
-//            throw new ResponseException(500, ex.getMessage());
-//        }
-//    }
+    public void leaveGame(String authToken, String username, int gameID, boolean isObserver) throws ResponseException {
+        try {
+            var action = new LeaveCommand(authToken, gameID, username, isObserver);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            this.session.close();
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
 
 }

@@ -11,7 +11,7 @@ import model.result.RegisterResult;
 public class PreLoginClient extends UIClient {
 
     public PreLoginClient(String serverUrl) {
-        super(serverUrl, null, null, 0, true);
+        super(serverUrl, null, null, 0, true, false);
     }
 
     public String eval(String input) {
