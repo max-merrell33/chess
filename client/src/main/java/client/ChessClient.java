@@ -5,7 +5,6 @@ import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import model.GameData;
 import model.request.GetGameRequest;
-import model.request.UpdateGameRequest;
 import model.result.GetGameResult;
 import ui.EscapeSequences;
 
@@ -160,9 +159,7 @@ public class ChessClient extends UIClient {
             } catch (InvalidMoveException ex) {
                 throw new ResponseException(400, "Invalid move.");
             }
-//            server.updateGame(new UpdateGameRequest(authToken,gameData));
             ws.makeMove(authToken, username, gameID, createMove(params[0]), params[0], playerIsObserver, playerIsWhite);
-//            return printBoard(gameData.game().getBoard(), playerIsWhite, Collections.singletonList(createMove(params[0])));
             return "";
         }
         throw new ResponseException(400, "Expected: <MOVE> (ex. e2e4)");
@@ -193,15 +190,6 @@ public class ChessClient extends UIClient {
 
     public String leave(String... params) throws ResponseException {
         if (params.length == 0) {
-//            GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
-//            GameData game = gameRes.gameData;
-//            GameData updatedGame = game;
-//            if (playerIsWhite) {
-//                updatedGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
-//            } else {
-//                updatedGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
-//            }
-//            server.updateGame(new UpdateGameRequest(authToken, updatedGame));
             ws.leaveGame(authToken, username, gameID, playerIsObserver);
             return "PostLoginClient";
         }
