@@ -29,9 +29,7 @@ public class WebSocketHandler {
     protected AuthDAO authDAO;
     protected GameDAO gameDAO;
 
-    private UserService userService;
     private GameService gameService;
-    private ClearService clearService;
 
     private void init() {
         try {
@@ -39,9 +37,7 @@ public class WebSocketHandler {
             authDAO = new SQLAuthDAO();
             gameDAO = new SQLGameDAO();
 
-            userService = new UserService(userDAO, authDAO, gameDAO);
             gameService = new GameService(userDAO, authDAO, gameDAO);
-            clearService = new ClearService(userDAO, authDAO, gameDAO);
         } catch (DataAccessException e) {
             System.err.println("Failed to initialize DAOs: " + e.getMessage());
             throw new RuntimeException("Server failed to initialize due to database error.", e);
@@ -173,7 +169,8 @@ public class WebSocketHandler {
             connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
 
             if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
-                notification = new NotificationMessage(gameData.whiteUsername() + " is in Checkmate. " + gameData.blackUsername() + " wins!", false, null);
+                notification = new NotificationMessage(gameData.whiteUsername() + " is in Checkmate. " + gameData.blackUsername() + " wins!",
+                        false, null);
                 connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
                 connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
                 gameData.game().setGameOver(true);
@@ -181,7 +178,8 @@ public class WebSocketHandler {
                 return;
             }
             if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
-                notification = new NotificationMessage(gameData.blackUsername() + " is in Checkmate. " + gameData.whiteUsername() + " wins!", false, null);
+                notification = new NotificationMessage(gameData.blackUsername() + " is in Checkmate. " + gameData.whiteUsername() + " wins!",
+                        false, null);
                 connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
                 connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
                 gameData.game().setGameOver(true);
@@ -224,7 +222,8 @@ public class WebSocketHandler {
             gameData.game().setGameOver(true);
             gameService.updateGame(new UpdateGameRequest(c.getAuthToken(), gameData));
 
-            if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.blackUsername()) || authDAO.getAuth(c.getAuthToken()).username().equals(gameData.whiteUsername())) {
+            if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.blackUsername())
+                    || authDAO.getAuth(c.getAuthToken()).username().equals(gameData.whiteUsername())) {
                 var notification = new NotificationMessage(authDAO.getAuth(c.getAuthToken()).username() + " resigned. The game is over", false, null);
                 connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
                 connections.broadcast(c.getAuthToken(), c.getGameID(), notification);

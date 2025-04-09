@@ -13,7 +13,8 @@ import java.util.*;
 public class ChessClient extends UIClient {
     private final WebSocketFacade ws;
 
-    public ChessClient(String serverUrl, String authToken, String username, int gameID, boolean playerIsWhite, boolean playerIsObserver, WebSocketFacade ws) {
+    public ChessClient(String serverUrl, String authToken, String username, int gameID,
+                       boolean playerIsWhite, boolean playerIsObserver, WebSocketFacade ws) {
         super(serverUrl, authToken, username, gameID, playerIsWhite, playerIsObserver);
         this.ws = ws;
     }

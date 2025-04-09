@@ -70,7 +70,8 @@ public class GameService extends Service {
             }
             GameData game = gameDAO.getGame(req.gameData.gameID());
 
-            gameDAO.updateGame(new GameData(game.gameID(), req.gameData.whiteUsername(), req.gameData.blackUsername(), game.gameName(), req.gameData.game()));
+            gameDAO.updateGame(new GameData(game.gameID(), req.gameData.whiteUsername(),
+                    req.gameData.blackUsername(), game.gameName(), req.gameData.game()));
 
             return new UpdateGameResult();
         } catch (DataAccessException e) {

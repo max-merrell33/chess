@@ -16,10 +16,6 @@ public class NotificationMessage extends ServerMessage {
         return message;
     }
 
-    public boolean redraw() {
-        return redraw;
-    }
-
     public String getMove() {
         return move;
     }

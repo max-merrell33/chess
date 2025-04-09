@@ -17,7 +17,6 @@ public class Repl implements NotificationHandler {
 
     public Repl(String serverUrl) {
         client = new PreLoginClient(serverUrl);
-        //client = new ChessClient(serverUrl, "22b948ad-1069-4a73-9c60-afc09b0ad34d", "test", 3, true);
         this.serverUrl = serverUrl;
         state = State.LOGGED_OUT;
     }
@@ -52,12 +51,7 @@ public class Repl implements NotificationHandler {
 
     public void notify(ServerMessage message) {
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-//            NotificationMessage notificationMessage = (NotificationMessage) message;
-//            String evalString = "hlRedraw " + notificationMessage.getMove();
-//            System.out.print(evalString);
-//            System.out.print("\n\n" + client.eval(evalString));
             System.out.println("\n" + client.eval("redraw"));
-//            System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + notificationMessage.getMessage());
         }
         if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
             NotificationMessage notificationMessage = (NotificationMessage) message;
@@ -89,10 +83,10 @@ public class Repl implements NotificationHandler {
             }
             case "ChessClient" -> {
                 WebSocketFacade ws = new WebSocketFacade(serverUrl, this);
-                client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsWhite(), client.playerIsObserver(), ws);
+                client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(),
+                        client.getGameID(), client.playerIsWhite(), client.playerIsObserver(), ws);
                 ws.joinGame(client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsObserver(), client.playerIsWhite());
                 state = State.CHESS_GAME;
-//                System.out.print(client.eval("redraw"));
                 return true;
             }
             default -> {
