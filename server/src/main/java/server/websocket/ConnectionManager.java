@@ -24,6 +24,11 @@ public class ConnectionManager {
     }
 
     public void respond(String authToken, int gameID, ServerMessage serverMessage, Session session) throws IOException {
+        System.out.println("Responding in game: " + gameID + " " + serverMessage.getServerMessageType());
+        if (serverMessage.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+            System.out.println("Error responding in game: " + gameID + " " + errorMessage.getErrorMessage());
+        }
         boolean valid = false;
         if (connections.get(gameID) != null) {
             if (connections.get(gameID).get(authToken) != null) {
@@ -40,6 +45,7 @@ public class ConnectionManager {
     }
 
     public void broadcast(String excludeAuthToken, int gameID, ServerMessage serverMessage) throws IOException {
+        System.out.println("Broadcasting to game: " + gameID + " " + serverMessage.getServerMessageType());
         var gameConnections = connections.get(gameID);
         if (gameConnections == null) return;
 

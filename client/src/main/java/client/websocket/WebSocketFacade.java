@@ -7,6 +7,7 @@ import exception.ResponseException;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveCommand;
 import websocket.commands.MoveCommand;
+import websocket.commands.ResignCommand;
 import websocket.messages.NotificationMessage;
 
 import javax.websocket.*;
@@ -69,6 +70,15 @@ public class WebSocketFacade extends Endpoint {
     public void makeMove(String authToken, String username, int gameID, ChessMove move, String moveString, boolean isObserver, boolean isWhite) throws ResponseException {
         try {
             var action = new MoveCommand(authToken, gameID, username, move, moveString, isObserver, isWhite);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
+
+    public void resign(String authToken, int gameID, String username) throws ResponseException {
+        try {
+            var action = new ResignCommand(authToken, gameID, username);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

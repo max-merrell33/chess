@@ -9,7 +9,6 @@ import exception.ResponseException;
 import model.GameData;
 import model.request.GetGameRequest;
 import model.request.UpdateGameRequest;
-import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -113,6 +112,7 @@ public class WebSocketHandler {
         try {
             GameData gameData = gameService.getGame(new GetGameRequest(c.getAuthToken(), c.getGameID())).gameData;
             GameData updatedGame;
+            System.out.println("In leave: " + gameData.whiteUsername() + " " + gameData.blackUsername());
             if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.whiteUsername())) {
                 updatedGame = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
             } else if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.blackUsername())){
@@ -163,18 +163,53 @@ public class WebSocketHandler {
                 return;
             }
             gameData.game().makeMove(c.getMove());
-
             gameService.updateGame(new UpdateGameRequest(c.getAuthToken(), gameData));
+
+            var loadGameMessage = new LoadGameMessage("gameData");
+            connections.respond(c.getAuthToken(), c.getGameID(), loadGameMessage, session);
+            connections.broadcast(c.getAuthToken(), c.getGameID(), loadGameMessage);
+
+            var notification = new NotificationMessage(message, true, c.getMoveString());
+            connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+
+            if (gameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                notification = new NotificationMessage(gameData.whiteUsername() + " is in Checkmate. " + gameData.blackUsername() + " wins!", false, null);
+                connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
+                connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+                gameData.game().setGameOver(true);
+                gameService.updateGame(new UpdateGameRequest(c.getAuthToken(), gameData));
+                return;
+            }
+            if (gameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                notification = new NotificationMessage(gameData.blackUsername() + " is in Checkmate. " + gameData.whiteUsername() + " wins!", false, null);
+                connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
+                connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+                gameData.game().setGameOver(true);
+                gameService.updateGame(new UpdateGameRequest(c.getAuthToken(), gameData));
+                return;
+            }
+            if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                notification = new NotificationMessage(gameData.whiteUsername() + " is in Check.", false, null);
+                connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
+                connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+                return;
+            }
+            if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                notification = new NotificationMessage(gameData.blackUsername() + " is in Check.", false, null);
+                connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
+                connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+                return;
+            }
+            if (gameData.game().isInStalemate(ChessGame.TeamColor.WHITE) || gameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+                notification = new NotificationMessage("Stalemate. Game over.", false, null);
+                connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
+                connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+            }
+
+
         } catch (InvalidMoveException | ResponseException | DataAccessException e) {
             connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: invalid move"), session);
-            return;
         }
-        var loadGameMessage = new LoadGameMessage("gameData");
-        connections.respond(c.getAuthToken(), c.getGameID(), loadGameMessage, session);
-        connections.broadcast(c.getAuthToken(), c.getGameID(), loadGameMessage);
-
-        var notification = new NotificationMessage(message, true, c.getMoveString());
-        connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
 
     }
 

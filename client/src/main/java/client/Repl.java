@@ -4,7 +4,9 @@ import client.websocket.NotificationHandler;
 import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import ui.EscapeSequences;
+import websocket.messages.ErrorMessage;
 import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
@@ -48,13 +50,24 @@ public class Repl implements NotificationHandler {
         System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY + "[" + state + "]" + EscapeSequences.RESET_TEXT_COLOR + " >>> ");
     }
 
-    public void notify(NotificationMessage message) {
-        if (message.redraw()) {
-            String evalString = "hlRedraw " + message.getMove();
-            System.out.print(evalString);
-            System.out.print("\n\n" + client.eval(evalString));
+    public void notify(ServerMessage message) {
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+//            NotificationMessage notificationMessage = (NotificationMessage) message;
+//            String evalString = "hlRedraw " + notificationMessage.getMove();
+//            System.out.print(evalString);
+//            System.out.print("\n\n" + client.eval(evalString));
+            System.out.println("\n" + client.eval("redraw"));
+//            System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + notificationMessage.getMessage());
         }
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + message.getMessage());
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            NotificationMessage notificationMessage = (NotificationMessage) message;
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + notificationMessage.getMessage());
+        }
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            System.out.println("Inside error message printer");
+            ErrorMessage errorMessage = (ErrorMessage) message;
+            System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + errorMessage.getErrorMessage());
+        }
         printPrompt();
     }
 
@@ -79,7 +92,7 @@ public class Repl implements NotificationHandler {
                 client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsWhite(), client.playerIsObserver(), ws);
                 ws.joinGame(client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsObserver(), client.playerIsWhite());
                 state = State.CHESS_GAME;
-                System.out.print(client.eval("redraw"));
+//                System.out.print(client.eval("redraw"));
                 return true;
             }
             default -> {

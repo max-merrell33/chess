@@ -143,8 +143,11 @@ public class ChessClient extends UIClient {
     }
 
     public String move(String... params) throws ResponseException {
+        GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
+        if (gameRes.gameData.game().isGameOver()) {
+            return "The game is already over.";
+        }
         if (params.length == 1) {
-            GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
             GameData gameData = gameRes.gameData;
 
             ChessGame.TeamColor userColor = playerIsWhite ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
@@ -157,9 +160,11 @@ public class ChessClient extends UIClient {
             } catch (InvalidMoveException ex) {
                 throw new ResponseException(400, "Invalid move.");
             }
-            server.updateGame(new UpdateGameRequest(authToken,gameData));
+//            server.updateGame(new UpdateGameRequest(authToken,gameData));
             ws.makeMove(authToken, username, gameID, createMove(params[0]), params[0], playerIsObserver, playerIsWhite);
-            return printBoard(gameData.game().getBoard(), playerIsWhite, Collections.singletonList(createMove(params[0])));        }
+//            return printBoard(gameData.game().getBoard(), playerIsWhite, Collections.singletonList(createMove(params[0])));
+            return "";
+        }
         throw new ResponseException(400, "Expected: <MOVE> (ex. e2e4)");
     }
 
@@ -188,15 +193,15 @@ public class ChessClient extends UIClient {
 
     public String leave(String... params) throws ResponseException {
         if (params.length == 0) {
-            GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
-            GameData game = gameRes.gameData;
-            GameData updatedGame = game;
-            if (playerIsWhite) {
-                updatedGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
-            } else {
-                updatedGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
-            }
-            server.updateGame(new UpdateGameRequest(authToken, updatedGame));
+//            GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
+//            GameData game = gameRes.gameData;
+//            GameData updatedGame = game;
+//            if (playerIsWhite) {
+//                updatedGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+//            } else {
+//                updatedGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+//            }
+//            server.updateGame(new UpdateGameRequest(authToken, updatedGame));
             ws.leaveGame(authToken, username, gameID, playerIsObserver);
             return "PostLoginClient";
         }
@@ -204,11 +209,16 @@ public class ChessClient extends UIClient {
     }
 
     public String resign(String... params) throws ResponseException {
+        GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
+        if (gameRes.gameData.game().isGameOver()) {
+            return "The game is already over.";
+        }
         if (params.length == 0) {
             System.out.println("Are you sure you want to resign? (y/n): ");
             String input = new Scanner(System.in).nextLine();
             if (input.equals("y")) {
-                return "You Resigned";
+                ws.resign(authToken, gameID, username);
+                return "";
             }
             return "";
         }
