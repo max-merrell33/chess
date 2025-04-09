@@ -9,10 +9,7 @@ import model.request.UpdateGameRequest;
 import model.result.GetGameResult;
 import ui.EscapeSequences;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Scanner;
+import java.util.*;
 
 public class ChessClient extends UIClient {
     private final WebSocketFacade ws;
@@ -33,6 +30,7 @@ public class ChessClient extends UIClient {
                 case "leave" -> leave(params);
                 case "resign" -> resign(params);
                 case "highlight", "hl" -> highlight(params);
+                case "hlredraw" -> printMove(params);
                 case "help" -> help();
                 default -> "Invalid Input. " + help();
             };
@@ -49,11 +47,21 @@ public class ChessClient extends UIClient {
         throw new ResponseException(400, "Unexpected characters after command");
     }
 
+    public String printMove(String... params) throws ResponseException {
+        if (params.length == 1) {
+            GetGameResult res = server.getGame(new GetGameRequest(authToken, gameID));
+            return printBoard(res.gameData.game().getBoard(), playerIsWhite, Collections.singletonList(createMove(params[0])));
+        }
+        throw new ResponseException(400, "Unexpected characters after command");
+    }
+
     public String printBoard(ChessBoard board, boolean playerIsWhite, Collection<ChessMove> possibleMoves) {
         ArrayList<int[]> movesList = new ArrayList<>();
-        for (ChessMove move : possibleMoves) {
-            movesList.add(new int[]{move.getStartPosition().getRow(), move.getStartPosition().getColumn()});
-            movesList.add(new int[]{move.getEndPosition().getRow(), move.getEndPosition().getColumn()});
+        if (possibleMoves != null) {
+            for (ChessMove move : possibleMoves) {
+                movesList.add(new int[]{move.getStartPosition().getRow(), move.getStartPosition().getColumn()});
+                movesList.add(new int[]{move.getEndPosition().getRow(), move.getEndPosition().getColumn()});
+            }
         }
 
         String[] rows = board.toString().split("\n");
@@ -150,8 +158,8 @@ public class ChessClient extends UIClient {
                 throw new ResponseException(400, "Invalid move.");
             }
             server.updateGame(new UpdateGameRequest(authToken,gameData));
-            return "Move made successfully";
-        }
+            ws.makeMove(authToken, username, gameID, params[0]);
+            return printBoard(gameData.game().getBoard(), playerIsWhite, Collections.singletonList(createMove(params[0])));        }
         throw new ResponseException(400, "Expected: <MOVE> (ex. e2e4)");
     }
 
@@ -180,6 +188,15 @@ public class ChessClient extends UIClient {
 
     public String leave(String... params) throws ResponseException {
         if (params.length == 0) {
+            GetGameResult gameRes = server.getGame(new GetGameRequest(authToken, gameID));
+            GameData game = gameRes.gameData;
+            GameData updatedGame = game;
+            if (playerIsWhite) {
+                updatedGame = new GameData(game.gameID(), null, game.blackUsername(), game.gameName(), game.game());
+            } else {
+                updatedGame = new GameData(game.gameID(), game.whiteUsername(), null, game.gameName(), game.game());
+            }
+            server.updateGame(new UpdateGameRequest(authToken, updatedGame));
             ws.leaveGame(authToken, username, gameID, playerIsObserver);
             return "PostLoginClient";
         }
@@ -202,6 +219,7 @@ public class ChessClient extends UIClient {
         if (params.length == 1) {
             GetGameResult res = server.getGame(new GetGameRequest(authToken, gameID));
             Collection<ChessMove> highlightedMoves = res.gameData.game().validMoves(createPosition(params[0]));
+            if (highlightedMoves == null) { return "No possible moves from " + params[0] + "."; }
             return printBoard(res.gameData.game().getBoard(), playerIsWhite, highlightedMoves);
         }
         throw new ResponseException(400, "Expected: <POSITION> (ex. e2)");

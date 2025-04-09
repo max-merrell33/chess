@@ -5,7 +5,6 @@ import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import ui.EscapeSequences;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
@@ -50,6 +49,11 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(NotificationMessage message) {
+        if (message.redraw()) {
+            String evalString = "hlRedraw " + message.getMove();
+            System.out.print(evalString);
+            System.out.print("\n\n" + client.eval(evalString));
+        }
         System.out.println(EscapeSequences.SET_TEXT_COLOR_BLUE + message.getMessage());
         printPrompt();
     }

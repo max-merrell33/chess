@@ -8,33 +8,44 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
 
-    public void add(String authToken, Session session) {
+    public void add(String authToken, int gameID, Session session) {
         var connection = new Connection(authToken, session);
-        connections.put(authToken, connection);
+        connections.putIfAbsent(gameID, new ConcurrentHashMap<>());
+        connections.get(gameID).put(authToken, connection);
     }
 
     public void remove(String authToken) {
-        connections.remove(authToken);
+        for (var gameMap : connections.values()) {
+            gameMap.remove(authToken);
+        }
     }
 
-    public void broadcast(String excludeAuthToken, ServerMessage serverMessage) throws IOException {
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
+    public void broadcast(String excludeAuthToken, int gameID, ServerMessage serverMessage) throws IOException {
+        var gameConnections = connections.get(gameID);
+        if (gameConnections == null) return;
+
+        var removeList = new ArrayList<String>();
+
+        for (var entry : gameConnections.entrySet()) {
+            String token = entry.getKey();
+            Connection c = entry.getValue();
             if (c.session.isOpen()) {
-                if (!c.authToken.equals(excludeAuthToken)) {
-                    System.out.println("Sending" + serverMessage.toString() + " in broadcast");
+                if (!token.equals(excludeAuthToken)) {
                     c.send(serverMessage.toString());
                 }
             } else {
-                removeList.add(c);
+                removeList.add(token);
             }
         }
 
-        // Clean up any connections that were left open.
-        for (var c : removeList) {
-            connections.remove(c.authToken);
+        for (String token : removeList) {
+            gameConnections.remove(token);
+        }
+
+        if (gameConnections.isEmpty()) {
+            connections.remove(gameID);
         }
     }
 }
