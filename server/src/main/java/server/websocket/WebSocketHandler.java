@@ -6,17 +6,17 @@ import chess.InvalidMoveException;
 import com.google.gson.*;
 import dataaccess.*;
 import exception.ResponseException;
+import model.GameData;
 import model.request.GetGameRequest;
+import model.request.UpdateGameRequest;
+import org.eclipse.jetty.util.IO;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import service.ClearService;
 import service.GameService;
 import service.UserService;
-import websocket.commands.ConnectCommand;
-import websocket.commands.LeaveCommand;
-import websocket.commands.MoveCommand;
-import websocket.commands.UserGameCommand;
+import websocket.commands.*;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -73,7 +73,10 @@ public class WebSocketHandler {
                 LeaveCommand leaveCommand = gson.fromJson(json, LeaveCommand.class);
                 leave(leaveCommand);
             }
-//            case RESIGN -> resign();
+            case RESIGN -> {
+                ResignCommand resignCommand = gson.fromJson(json, ResignCommand.class);
+                resign(resignCommand);
+            }
         }
     }
 
@@ -107,6 +110,24 @@ public class WebSocketHandler {
 
     private void leave(LeaveCommand c) throws IOException {
         connections.remove(c.getAuthToken());
+        try {
+            GameData gameData = gameService.getGame(new GetGameRequest(c.getAuthToken(), c.getGameID())).gameData;
+            GameData updatedGame;
+            if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.whiteUsername())) {
+                updatedGame = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            } else if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.blackUsername())){
+                updatedGame = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+            } else {
+                var notification = new NotificationMessage(authDAO.getAuth(c.getAuthToken()).username() + " has stopped observing.", false, null);
+                connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+                return;
+            }
+
+            gameService.updateGame(new UpdateGameRequest(c.getAuthToken(), updatedGame));
+
+        } catch (ResponseException | DataAccessException e) {
+            throw new IOException();
+        }
         String message;
         if (c.isObserver()) {
             message = String.format("%s has stopped observing.", c.getUsername());
@@ -121,20 +142,30 @@ public class WebSocketHandler {
     private void makeMove(MoveCommand c) throws IOException {
         var message = String.format("%s made the move %s.", c.getUsername(), c.getMoveString());
 
-        if (c.isObserver()) {
-            connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: observer cannot make moves"), session);
-            return;
-        }
-
-        ChessGame.TeamColor teamColor = c.isWhite() ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        ChessGame.TeamColor teamColor;
         try {
-            ChessGame game = gameService.getGame(new GetGameRequest(c.getAuthToken(), c.getGameID())).gameData.game();
-            if (game.getTeamTurn() != teamColor) {
+            GameData gameData = gameService.getGame(new GetGameRequest(c.getAuthToken(), c.getGameID())).gameData;
+            if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.whiteUsername())) {
+                teamColor = ChessGame.TeamColor.WHITE;
+            } else if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.blackUsername())) {
+                teamColor = ChessGame.TeamColor.BLACK;
+            } else {
+                connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: observer cannot make moves"), session);
+                return;
+            }
+
+            if (gameData.game().isGameOver()) {
+                connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: the game is over"), session);
+                return;
+            }
+            if (gameData.game().getTeamTurn() != teamColor) {
                 connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: not your turn"), session);
                 return;
             }
-            game.makeMove(c.getMove());
-        } catch (InvalidMoveException | ResponseException e) {
+            gameData.game().makeMove(c.getMove());
+
+            gameService.updateGame(new UpdateGameRequest(c.getAuthToken(), gameData));
+        } catch (InvalidMoveException | ResponseException | DataAccessException e) {
             connections.respond(c.getAuthToken(), c.getGameID(), new ErrorMessage("Error: invalid move"), session);
             return;
         }
@@ -146,4 +177,33 @@ public class WebSocketHandler {
         connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
 
     }
+
+    private void resign(ResignCommand c) throws IOException {
+        try {
+            GameData gameData = gameService.getGame(new GetGameRequest(c.getAuthToken(), c.getGameID())).gameData;
+            if (gameData.game().isGameOver()) {
+                var errorMessage = new ErrorMessage("Error: the game is already over.");
+                connections.respond(c.getAuthToken(), c.getGameID(), errorMessage, session);
+                return;
+            }
+            gameData.game().setGameOver(true);
+            gameService.updateGame(new UpdateGameRequest(c.getAuthToken(), gameData));
+
+            if (authDAO.getAuth(c.getAuthToken()).username().equals(gameData.blackUsername()) || authDAO.getAuth(c.getAuthToken()).username().equals(gameData.whiteUsername())) {
+                var notification = new NotificationMessage(authDAO.getAuth(c.getAuthToken()).username() + " resigned. The game is over", false, null);
+                connections.respond(c.getAuthToken(), c.getGameID(), notification, session);
+                connections.broadcast(c.getAuthToken(), c.getGameID(), notification);
+            } else {
+                var errorMessage = new ErrorMessage("Error: you are observing, you cannot resign.");
+                connections.respond(c.getAuthToken(), c.getGameID(), errorMessage, session);
+            }
+
+
+        } catch (ResponseException | DataAccessException e) {
+            throw new IOException();
+        }
+    }
+
 }
+
+

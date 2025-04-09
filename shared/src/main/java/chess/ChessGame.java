@@ -12,6 +12,7 @@ import java.util.Objects;
 public class ChessGame {
 
     private boolean isWhiteTurn = true;
+    private boolean isGameOver = false;
     private ChessBoard board = new ChessBoard();
     private ChessPosition lastDoubleMovePosition;
 
@@ -221,6 +222,14 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    public boolean isGameOver() {
+        return isGameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        isGameOver = gameOver;
     }
 
     @Override
