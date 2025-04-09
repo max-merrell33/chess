@@ -1,6 +1,7 @@
 package client;
 
 import chess.*;
+import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import model.GameData;
 import model.request.GetGameRequest;
@@ -14,8 +15,11 @@ import java.util.Collection;
 import java.util.Scanner;
 
 public class ChessClient extends UIClient {
-    public ChessClient(String serverUrl, String authToken, String username, int gameID, boolean playerIsWhite) {
+    private WebSocketFacade ws;
+
+    public ChessClient(String serverUrl, String authToken, String username, int gameID, boolean playerIsWhite, WebSocketFacade ws) {
         super(serverUrl, authToken, username, gameID, playerIsWhite);
+        this.ws = ws;
     }
 
     public String eval(String input) {
@@ -27,8 +31,8 @@ public class ChessClient extends UIClient {
                 case "redraw" -> print(params);
                 case "move" -> move(params);
                 case "leave" -> leave(params);
-                case "resign" -> resign(params); //TODO
-                case "highlight", "hl" -> highlight(params); //TODO
+                case "resign" -> resign(params);
+                case "highlight", "hl" -> highlight(params);
                 case "help" -> help();
                 default -> "Invalid Input. " + help();
             };

@@ -1,18 +1,22 @@
 package client;
 
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import exception.ResponseException;
 import ui.EscapeSequences;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
 
 import java.util.Scanner;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private UIClient client;
     private final String serverUrl;
     private State state;
 
     public Repl(String serverUrl) {
-        //client = new PreLoginClient(serverUrl);
-        client = new ChessClient(serverUrl, "22b948ad-1069-4a73-9c60-afc09b0ad34d", "test", 3, true);
+        client = new PreLoginClient(serverUrl);
+        //client = new ChessClient(serverUrl, "22b948ad-1069-4a73-9c60-afc09b0ad34d", "test", 3, true);
         this.serverUrl = serverUrl;
         state = State.LOGGED_OUT;
     }
@@ -45,6 +49,11 @@ public class Repl {
         System.out.print("\n" + EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY + "[" + state + "]" + EscapeSequences.RESET_TEXT_COLOR + " >>> ");
     }
 
+    public void notify(NotificationMessage message) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + message.getMessage());
+        printPrompt();
+    }
+
     private boolean checkClientChange(String result) throws ResponseException {
         switch (result) {
             case "PreLoginClient" -> {
@@ -62,9 +71,11 @@ public class Repl {
                 return true;
             }
             case "ChessClient" -> {
-                client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsWhite());
+                WebSocketFacade ws = new WebSocketFacade(serverUrl, this);
+                client = new ChessClient(serverUrl, client.getAuthToken(), client.getUsername(), client.getGameID(), client.playerIsWhite(), ws);
+                ws.joinGame(client.getAuthToken(), client.getGameID());
                 state = State.CHESS_GAME;
-                System.out.print(client.eval("print"));
+                System.out.print(client.eval("redraw"));
                 return true;
             }
             default -> {
